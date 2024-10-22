@@ -44,12 +44,15 @@ class LaneATT(nn.Module):
         self.backbone = self.__laneatt_config['backbone']
 
         # Generate Anchors Proposals
-        self.__anchors_image, self.__anchors_feature_volume = utils.generate_anchors(lateral_n=self.__anchor_y_discretization, 
-                                                                                    bottom_n=self.__anchor_x_discretization,
+        self.__anchors_image, self.__anchors_feature_volume = utils.generate_anchors(y_discretization=self.__anchor_y_discretization, 
+                                                                                    x_discretization=self.__anchor_x_discretization,
                                                                                     left_angles=self.__laneatt_config['anchor_angles']['left'],
                                                                                     right_angles=self.__laneatt_config['anchor_angles']['right'],
                                                                                     bottom_angles=self.__laneatt_config['anchor_angles']['bottom'],
-                                                                                    feature_volume_height=self.__feature_volume_height)
+                                                                                    fv_size=(self.__feature_volume_channels, 
+                                                                                             self.__feature_volume_height, 
+                                                                                             self.__feature_volume_width),
+                                                                                    img_size=(self.__img_h, self.__img_w))
 
     @property
     def backbone(self):
@@ -85,3 +88,6 @@ class LaneATT(nn.Module):
 
         # Move the model to the device
         self.__backbone.to(self.device)
+
+if __name__ == '__main__':
+    model = LaneATT()
