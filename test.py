@@ -1,5 +1,6 @@
 import laneatt.utils.anchors 
 import os
+import torch
 import unittest
 import yaml
 
@@ -201,6 +202,13 @@ class TestAnchors(unittest.TestCase):
                                                                                                     (64, 10, 20), 
                                                                                                     self.img_size)))
             
+        for i, anchor in enumerate(anchors[1]):
+            self.assertTrue(self.almost_equal_lists(anchor, laneatt.utils.anchors.generate_anchor((0, repeated_ys[i]),
+                                                                                                    self.left_angles[i%angles_number],
+                                                                                                    self.y_discretization, 
+                                                                                                    (64, 10, 20), 
+                                                                                                    self.img_size, fv=True)))
+            
     def test_right_anchors(self):
         anchors = laneatt.utils.anchors.generate_side_anchors(self.right_angles, 
                                                               self.y_discretization, 
@@ -217,6 +225,13 @@ class TestAnchors(unittest.TestCase):
                                                                                                     self.y_discretization, 
                                                                                                     (64, 10, 20), 
                                                                                                     self.img_size)))
+            
+        for i, anchor in enumerate(anchors[1]):
+            self.assertTrue(self.almost_equal_lists(anchor, laneatt.utils.anchors.generate_anchor((1, repeated_ys[i]),
+                                                                                                    self.right_angles[i%angles_number],
+                                                                                                    self.y_discretization, 
+                                                                                                    (64, 10, 20), 
+                                                                                                    self.img_size, fv=True)))
 
     def test_bottom_anchors(self):
         anchors = laneatt.utils.anchors.generate_side_anchors(self.bottom_angles, 
@@ -234,6 +249,51 @@ class TestAnchors(unittest.TestCase):
                                                                                                     self.y_discretization, 
                                                                                                     (64, 10, 20), 
                                                                                                     self.img_size)))
+        for i, anchor in enumerate(anchors[1]):
+            self.assertTrue(self.almost_equal_lists(anchor, laneatt.utils.anchors.generate_anchor((repeated_xs[i], 1),
+                                                                                                    self.bottom_angles[i%angles_number],
+                                                                                                    self.y_discretization, 
+                                                                                                    (64, 10, 20), 
+                                                                                                    self.img_size, fv=True)))
 
+    def test_generate_anchors(self):
+        anchors = laneatt.utils.anchors.generate_anchors(self.y_discretization, 
+                                                        self.x_discretization, 
+                                                        self.left_angles, 
+                                                        self.right_angles, 
+                                                        self.bottom_angles, 
+                                                        (64, 10, 20), 
+                                                        self.img_size)
+        
+        left_anchors = laneatt.utils.anchors.generate_side_anchors(self.left_angles, 
+                                                                    self.y_discretization, 
+                                                                    (64, 10, 20), 
+                                                                    self.y_discretization, 
+                                                                    self.img_size, 
+                                                                    x=0.)
+        
+        right_anchors = laneatt.utils.anchors.generate_side_anchors(self.right_angles, 
+                                                                    self.y_discretization, 
+                                                                    (64, 10, 20), 
+                                                                    self.y_discretization,
+                                                                    self.img_size,
+                                                                    x=1.)
+        
+        bottom_anchors = laneatt.utils.anchors.generate_side_anchors(self.bottom_angles, 
+                                                            self.x_discretization, 
+                                                            (64, 10, 20), 
+                                                            self.y_discretization, 
+                                                            self.img_size, 
+                                                            y=1.)
+        
+        image_anchors = torch.cat([left_anchors[0], bottom_anchors[0], right_anchors[0]])
+        feature_volume_anchors = torch.cat([left_anchors[1], bottom_anchors[1], right_anchors[1]]) 
+
+        for anchor, image_anchor in zip(anchors[0], image_anchors):
+            self.assertTrue(self.almost_equal_lists(anchor, image_anchor))
+
+        for anchor, feature_volume_anchor in zip(anchors[1], feature_volume_anchors):
+            self.assertTrue(self.almost_equal_lists(anchor, feature_volume_anchor))
+            
 if __name__ == '__main__':
     unittest.main()
