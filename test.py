@@ -1,8 +1,24 @@
-import unittest
-import numpy as np
 import laneatt.utils.anchors 
+import os
+import unittest
+import yaml
+
+import numpy as np
 
 class TestAnchors(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(TestAnchors, self).__init__(*args, **kwargs)
+
+        config_file=os.path.join(os.path.dirname(__file__), 'laneatt', 'config', 'laneatt.yaml')
+        self.__laneatt_config = yaml.safe_load(open(config_file))
+
+        self.left_angles = self.__laneatt_config['anchor_angles']['left']
+        self.right_angles = self.__laneatt_config['anchor_angles']['right']
+        self.bottom_angles = self.__laneatt_config['anchor_angles']['bottom']
+        self.y_discretization = self.__laneatt_config['anchor_discretization']['y']
+        self.x_discretization = self.__laneatt_config['anchor_discretization']['x']
+        self.img_size = (self.__laneatt_config['image_size']['height'], self.__laneatt_config['image_size']['width'])
+
     def almost_equal_lists(self, list1, list2):
         for i in range(len(list1)):
             if not np.isclose(list1[i], list2[i], atol=0.001):
@@ -117,8 +133,107 @@ class TestAnchors(unittest.TestCase):
         self.assertTrue(self.almost_equal_lists(laneatt.utils.anchors.generate_anchor((1, 0), 141, 72, (64, 10, 20), (720, 1280), fv=True), [ 0.0000,  0.0000, 10.0000, 20.0000,  0.0000, 32.3490, 30.9769, 29.6048,
                                                                                                                                             28.2326, 26.8605, 25.4884, 24.1163, 22.7442, 21.3721, 20.0000]))
 
+    def test_bottom_anchor(self):
+        self.assertTrue(self.almost_equal_lists(laneatt.utils.anchors.generate_anchor((0.5, 1), 100, 72, (64, 10, 20), (720, 1280)), [  0.0000,   0.0000,   0.0000, 640.0000,   0.0000, 640.0000, 638.2119,
+                                                                                                                                        636.4238, 634.6357, 632.8476, 631.0594, 629.2714, 627.4833, 625.6952,
+                                                                                                                                        623.9070, 622.1190, 620.3309, 618.5427, 616.7546, 614.9666, 613.1784,
+                                                                                                                                        611.3903, 609.6022, 607.8141, 606.0260, 604.2379, 602.4498, 600.6617,
+                                                                                                                                        598.8736, 597.0855, 595.2974, 593.5093, 591.7212, 589.9330, 588.1450,
+                                                                                                                                        586.3569, 584.5688, 582.7806, 580.9926, 579.2045, 577.4163, 575.6282,
+                                                                                                                                        573.8401, 572.0520, 570.2639, 568.4758, 566.6877, 564.8996, 563.1115,
+                                                                                                                                        561.3234, 559.5353, 557.7472, 555.9591, 554.1710, 552.3829, 550.5948,
+                                                                                                                                        548.8066, 547.0186, 545.2305, 543.4424, 541.6542, 539.8661, 538.0781,
+                                                                                                                                        536.2899, 534.5018, 532.7137, 530.9256, 529.1375, 527.3494, 525.5613,
+                                                                                                                                        523.7732, 521.9851, 520.1970, 518.4089, 516.6208, 514.8327, 513.0446]))
+        
+        self.assertTrue(self.almost_equal_lists(laneatt.utils.anchors.generate_anchor((0.25, 1), 30, 72, (64, 10, 20), (720, 1280)), [   0.0000,    0.0000,    0.0000,  320.0000,    0.0000,  320.0000,
+                                                                                                                                        337.5645,  355.1289,  372.6934,  390.2578,  407.8223,  425.3868,
+                                                                                                                                        442.9512,  460.5156,  478.0801,  495.6446,  513.2090,  530.7736,
+                                                                                                                                        548.3380,  565.9024,  583.4669,  601.0314,  618.5958,  636.1603,
+                                                                                                                                        653.7247,  671.2892,  688.8536,  706.4181,  723.9825,  741.5471,
+                                                                                                                                        759.1115,  776.6759,  794.2404,  811.8049,  829.3694,  846.9338,
+                                                                                                                                        864.4982,  882.0627,  899.6271,  917.1917,  934.7560,  952.3206,
+                                                                                                                                        969.8849,  987.4495, 1005.0139, 1022.5784, 1040.1428, 1057.7073,
+                                                                                                                                        1075.2717, 1092.8362, 1110.4006, 1127.9651, 1145.5295, 1163.0941,
+                                                                                                                                        1180.6584, 1198.2229, 1215.7874, 1233.3518, 1250.9165, 1268.4808,
+                                                                                                                                        1286.0452, 1303.6097, 1321.1741, 1338.7388, 1356.3031, 1373.8676,
+                                                                                                                                        1391.4320, 1408.9965, 1426.5610, 1444.1254, 1461.6898, 1479.2543,
+                                                                                                                                        1496.8188, 1514.3833, 1531.9478, 1549.5121, 1567.0767]))
+        
+        self.assertTrue(self.almost_equal_lists(laneatt.utils.anchors.generate_anchor((0.75, 1), 165, 72, (64, 10, 20), (720, 1280)), [    0.0000,     0.0000,     0.0000,   960.0000,     0.0000,   960.0000,
+                                                                                                                                        922.1538,   884.3076,   846.4616,   808.6155,   770.7693,   732.9231,
+                                                                                                                                        695.0769,   657.2309,   619.3847,   581.5385,   543.6924,   505.8462,
+                                                                                                                                        468.0000,   430.1540,   392.3078,   354.4616,   316.6154,   278.7693,
+                                                                                                                                        240.9232,   203.0770,   165.2309,   127.3848,    89.5386,    51.6924,
+                                                                                                                                        13.8464,   -23.9998,   -61.8461,   -99.6921,  -137.5385,  -175.3844,
+                                                                                                                                        -213.2306,  -251.0768,  -288.9230,  -326.7692,  -364.6151,  -402.4614,
+                                                                                                                                        -440.3074,  -478.1537,  -515.9998,  -553.8461,  -591.6921,  -629.5382,
+                                                                                                                                        -667.3844,  -705.2305,  -743.0768,  -780.9229,  -818.7689,  -856.6152,
+                                                                                                                                        -894.4613,  -932.3075,  -970.1536, -1007.9996, -1045.8461, -1083.6921,
+                                                                                                                                        -1121.5381, -1159.3843, -1197.2305, -1235.0769, -1272.9229, -1310.7688,
+                                                                                                                                        -1348.6150, -1386.4614, -1424.3076, -1462.1536, -1499.9995, -1537.8459,
+                                                                                                                                        -1575.6921, -1613.5383, -1651.3843, -1689.2302, -1727.0767]))
+
+        self.assertTrue(self.almost_equal_lists(laneatt.utils.anchors.generate_anchor((0.5, 1), 100, 72, (64, 10, 20), (720, 1280), fv=True), [ 0.0000,  0.0000,  0.0000, 10.0000,  0.0000, 10.0000,  9.8041,  9.6082,
+                                                                                                                                                9.4122,  9.2163,  9.0204,  8.8245,  8.6286,  8.4326,  8.2367]))
+
+        self.assertTrue(self.almost_equal_lists(laneatt.utils.anchors.generate_anchor((0.25, 1), 30, 72, (64, 10, 20), (720, 1280), fv=True), [ 0.0000,  0.0000,  0.0000,  5.0000,  0.0000,  5.0000,  6.9245,  8.8490,
+                                                                                                                                                10.7735, 12.6980, 14.6225, 16.5470, 18.4715, 20.3960, 22.3205]))
+
+        self.assertTrue(self.almost_equal_lists(laneatt.utils.anchors.generate_anchor((0.75, 1), 165, 72, (64, 10, 20), (720, 1280), fv=True), [  0.0000,   0.0000,   0.0000,  15.0000,   0.0000,  15.0000,  10.8533,
+                                                                                                                                                6.7066,   2.5598,  -1.5869,  -5.7336,  -9.8803, -14.0271, -18.1738,
+                                                                                                                                                -22.3205]))
+
+    def test_left_anchors(self):
+        anchors = laneatt.utils.anchors.generate_side_anchors(self.left_angles, 
+                                                              self.y_discretization, 
+                                                              (64, 10, 20), 
+                                                              self.y_discretization, 
+                                                              self.img_size, 
+                                                              x=0.)
+        ys = np.linspace(1, 0, self.y_discretization)
+        angles_number = len(self.left_angles)
+        repeated_ys = np.repeat(ys, angles_number)
+        for i, anchor in enumerate(anchors[0]):
+            self.assertTrue(self.almost_equal_lists(anchor, laneatt.utils.anchors.generate_anchor((0, repeated_ys[i]),
+                                                                                                    self.left_angles[i%angles_number],
+                                                                                                    self.y_discretization, 
+                                                                                                    (64, 10, 20), 
+                                                                                                    self.img_size)))
+            
+    def test_right_anchors(self):
+        anchors = laneatt.utils.anchors.generate_side_anchors(self.right_angles, 
+                                                              self.y_discretization, 
+                                                              (64, 10, 20), 
+                                                              self.y_discretization,
+                                                              self.img_size,
+                                                              x=1.)
+        ys = np.linspace(1, 0, self.y_discretization)
+        angles_number = len(self.right_angles)
+        repeated_ys = np.repeat(ys, angles_number)
+        for i, anchor in enumerate(anchors[0]):
+            self.assertTrue(self.almost_equal_lists(anchor, laneatt.utils.anchors.generate_anchor((1, repeated_ys[i]),
+                                                                                                    self.right_angles[i%angles_number],
+                                                                                                    self.y_discretization, 
+                                                                                                    (64, 10, 20), 
+                                                                                                    self.img_size)))
+
+    def test_bottom_anchors(self):
+        anchors = laneatt.utils.anchors.generate_side_anchors(self.bottom_angles, 
+                                                            self.x_discretization, 
+                                                            (64, 10, 20), 
+                                                            self.y_discretization, 
+                                                            self.img_size, 
+                                                            y=1.)
+        xs = np.linspace(1, 0, self.x_discretization)
+        angles_number = len(self.bottom_angles)
+        repeated_xs = np.repeat(xs, angles_number)
+        for i, anchor in enumerate(anchors[0]):
+            self.assertTrue(self.almost_equal_lists(anchor, laneatt.utils.anchors.generate_anchor((repeated_xs[i], 1),
+                                                                                                    self.bottom_angles[i%angles_number],
+                                                                                                    self.y_discretization, 
+                                                                                                    (64, 10, 20), 
+                                                                                                    self.img_size)))
 
 if __name__ == '__main__':
-    import torch
-    torch.set_printoptions(sci_mode=False)
     unittest.main()
