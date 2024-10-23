@@ -8,8 +8,8 @@ def generate_anchors(y_discretization:int, x_discretization:int, left_angles:lis
     """
         Generates anchors for the model based on the discretization and angles
         The anchors are in the form of a tensor with shape 
-        (y_discretization*[len(left_angles)+len(right_angles)]+x_discretization*len(bottom_angles), 77) 
-        where each row contains each anchor information and 77 is the number of features for each anchor
+        (y_discretization*[len(left_angles)+len(right_angles)]+x_discretization*len(bottom_angles), (y_discretization+5 or feature volume height+5)) 
+        where each row contains each anchor information and y_(y_discretization+5 or feature volume height+5) is the number of features for each anchor
         
         Structure of each anchor:
         [score0, score1, start_y, start_x, length, anchor_xs]
@@ -48,8 +48,8 @@ def generate_anchors(y_discretization:int, x_discretization:int, left_angles:lis
 def generate_side_anchors(angles:list, discretization:int, fv_size:tuple, y_discretization:int, img_size:tuple, x:float=None, y:float=None) -> List[torch.Tensor]:
     """
         Generates side anchors based on predefined angles, and discretization
-        The anchors are in the form of a tensor with shape (discretization*len(angles), 77) 
-        where each row contains each anchor information and 77 is the number of features for each anchor
+        The anchors are in the form of a tensor with shape (discretization*len(angles), y_(y_discretization+5 or feature volume height+5)) 
+        where each row contains each anchor information and y_(y_discretization+5 or feature volume height+5) is the number of features for each anchor
         
         Structure of each anchor:
         [score0, score1, start_y, start_x, length, anchor_xs]
@@ -109,8 +109,8 @@ def generate_side_anchors(angles:list, discretization:int, fv_size:tuple, y_disc
 def generate_anchor(start:tuple, angle:float, y_discretization:int, fv_size:int, img_size:tuple, fv:bool=False) -> torch.Tensor:
     """
         Generates anchor based on start point and angle
-        The anchors are in the form of a tensor with shape (1, 77) 
-        where 77 is the number of features for each anchor
+        The anchors are in the form of a tensor with shape (1, y_(y_discretization+5 or feature volume height+5)) 
+        where y_(y_discretization+5 or feature volume height+5) is the number of features for each anchor
         
         Structure of each anchor:
         [score0, score1, start_y, start_x, length, anchor_xs]
@@ -173,3 +173,48 @@ def generate_anchor(start:tuple, angle:float, y_discretization:int, fv_size:int,
     anchor[5:] = (anchor[3] + delta_x)
 
     return anchor
+
+def get_fv_anchor_indices(anchors_fv, feature_map_channels, feature_volume_height, feature_volume_width):
+        """
+            Computes the anchor indices for the feature volume
+
+            Args:
+                anchors_fv (torch.Tensor): Anchors for all sides projected into the feature volume
+                feature_map_channels (int): Number of feature map channels
+                feature_volume_height (int): Feature volume height
+                feature_volume_width (int): Feature volume width
+            
+            Returns:
+                torch.Tensor: Z indices ((0-64)*fv_height[interleaved]*n_proposals, 1)
+                torch.Tensor: Y indices ((0-23)*fv_channels*n_proposals, 1)
+                torch.Tensor: X indices (ith_proposal[5:]*fv_channels*n_proposals, 1)
+                torch.Tensor: Invalid mask (ith_proposal[5:]*fv_channels*n_proposals, 1)
+        """
+        # Get the number of anchors proposals
+        n_proposals = len(anchors_fv)
+
+        # Extract only anchor points from anchors_feature_volume tensor
+        anchors_x_points = anchors_fv[:, 5:]
+        # Repeat the anchors proposals for each feature map and puts them in a single dimension
+        # The output of this line stores the ith anchor proposal repeated for each feature map channel collapsed in a single dimension
+        # (ith_propsal[5:], fv_h) -> (ith_proposal[5:]*fv_channels, 1) and rounded to the nearest integer to get the nearest pixel index
+        unclamped_anchors_x_indices = torch.repeat_interleave(anchors_x_points, feature_map_channels, dim=0).reshape(-1, 1).round().long()
+        # Clamp the anchors coordinates to the feature map width
+        anchors_x_indices = torch.clamp(unclamped_anchors_x_indices, 0, feature_volume_width - 1)
+        # Reshape the anchors to the original shape
+        unclamped_anchors_x_indices = unclamped_anchors_x_indices.reshape(n_proposals, feature_map_channels, feature_volume_height, 1)
+        
+        # Generate a binary mask to filter out the invalid anchor proposals
+        invalid_mask = (unclamped_anchors_x_indices < 0) | (unclamped_anchors_x_indices > feature_volume_width - 1)
+
+        # Generate y coordinates for each anchor point
+        anchors_y_indices = torch.arange(0, feature_volume_height)
+        # Repeat the y coordinates for each feature map and each proposal and puts them in a single dimension
+        # ((0-23)*fv_channels*n_proposals, 1)
+        anchors_y_indices = anchors_y_indices.repeat(feature_map_channels).repeat(n_proposals).reshape(-1, 1)
+
+        # Generate z pixels for each anchor proposal and puts them in a single dimension
+        # ((0-64)*fv_height[interleaved]*n_proposals, 1)
+        anchors_z_cut_indices = torch.arange(feature_map_channels).repeat_interleave(feature_volume_height).repeat(n_proposals).reshape(-1, 1)
+
+        return anchors_z_cut_indices, anchors_y_indices, anchors_x_indices, invalid_mask

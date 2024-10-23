@@ -53,6 +53,30 @@ class LaneATT(nn.Module):
                                                                                              self.__feature_volume_height, 
                                                                                              self.__feature_volume_width),
                                                                                     img_size=(self.__img_h, self.__img_w))
+        
+        # Move the anchors to the device
+        self.__anchors_image = self.__anchors_image.to(self.device)
+        self.__anchors_feature_volume = self.__anchors_feature_volume.to(self.device)
+
+        # Pre-Compute Indices for the Anchor Pooling
+        self.__anchors_z_indices, self.__anchors_y_indices, self.__anchors_x_indices, self.__invalid_mask = utils.get_fv_anchor_indices(self.__anchors_feature_volume,
+                                                                                                                                        self.__feature_volume_channels, 
+                                                                                                                                        self.__feature_volume_height, 
+                                                                                                                                        self.__feature_volume_width)
+
+        # Move the indices to the device
+        self.__anchors_z_cut_indices = self.__anchors_z_cut_indices.to(self.device)
+        self.__anchors_y_cut_indices = self.__anchors_y_cut_indices.to(self.device)
+        self.__anchors_x_cut_indices = self.__anchors_x_cut_indices.to(self.device)
+
+        # Fully connected layer of the attention mechanism that takes a single anchor proposal for all the feature maps as input and outputs a score 
+        # for each anchor proposal except itself. The score is computed using a softmax function.
+        self.__attention_layer = nn.Sequential(nn.Linear(self.__feature_volume_channels * self.__feature_volume_height, len(self.__anchors_feature_volume) - 1),
+                                                nn.Softmax(dim=1)).to(self.device)
+        
+        # Convolutional layer for the classification and regression tasks
+        self.__cls_layer = nn.Linear(2 * self.__feature_volume_channels * self.__feature_volume_height, 2).to(self.device)
+        self.__reg_layer = nn.Linear(2 * self.__feature_volume_channels * self.__feature_volume_height, self.__anchor_y_steps + 1).to(self.device)
 
     @property
     def backbone(self):
