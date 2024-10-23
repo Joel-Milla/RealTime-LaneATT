@@ -251,7 +251,7 @@ class LaneATT(nn.Module):
                 
                 # Forward pass
                 outputs = model(images)
-                loss, loss_dict_i = model.loss(outputs, labels)
+                #loss, loss_dict_i = model.loss(outputs, labels)
 
             #     # Backward and optimize
             #     optimizer.zero_grad()
@@ -279,6 +279,13 @@ class LaneATT(nn.Module):
                                                    num_workers=20,
                                                    worker_init_fn=self.__worker_init_fn_)
         return train_loader
+    
+    @staticmethod
+    def __worker_init_fn_(_):
+        torch_seed = torch.initial_seed()
+        np_seed = torch_seed // 2**32 - 1
+        random.seed(torch_seed)
+        np.random.seed(np_seed)
 
 if __name__ == '__main__':
     model = LaneATT()
