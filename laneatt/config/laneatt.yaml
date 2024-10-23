@@ -10,6 +10,11 @@ anchor_discretization:
 
 # Image Dimensions
 image_size:
+  width: 640
+  height: 360
+
+# Dataset Image Dimensions
+dataset_image_size:
   width: 1280
   height: 720
 
@@ -36,7 +41,7 @@ lr_scheduler:
 epochs: 15
 
 # Batch Size
-batch_size: 4
+batch_size: 1
 
 # Dataset settings
 dataset:
