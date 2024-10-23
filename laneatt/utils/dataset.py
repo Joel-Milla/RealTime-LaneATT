@@ -18,7 +18,7 @@ SPLIT_FILES = {
 }
 
 class LaneDataset(Dataset):
-    def __init__(self, config, split):
+    def __init__(self, config:str, split:str) -> None:
         self.__general_config = config
         self.__dataset_config = config['dataset'][split]
         # Dataset split to load, e.g. train, val, test
@@ -53,9 +53,14 @@ class LaneDataset(Dataset):
         self.annotations = np.array(list(map(self.__transform_annotation, self.annotations)))
         self.__logger.info("Annotations transformed.")
 
-    def __load_annotations(self):
+    def __load_annotations(self) -> None:
         """
             Load annotations from the annotation files as a dict of the path of the image and a list of lists of tuples (x,y) for the lanes.
+
+            annotations: {
+                            path: str,
+                            lanes: list[list[tuple(float, float)]]
+                            }
         """
 
         self.__logger.info('Loading TuSimple annotations...')
@@ -92,7 +97,24 @@ class LaneDataset(Dataset):
         self.__logger.info('%d annotations loaded, with a maximum of %d lanes in an image.', len(self.annotations),
                          self.max_lanes)
 
-    def __transform_annotation(self, annotation):
+    def __transform_annotation(self, annotation:dict) -> dict:
+        """
+            Transform the annotation to the model's target format.
+            
+            The transformed lanes involve cleaning the lanes, sorting them by Y, removing points with the same Y, 
+            remapping the lanes to a 0-1 range, and creating a new annotation with the transformed lanes and the model
+            y_discretizations based on polynomial interpolations and extrapolations of the labeled lanes.
+
+            It also involves labeling valid lanes in the score fields, setting the starting point of the lanes (based on
+            the first x inside the image and its corresponding y assuming bottom approximations only can leave the image
+            by one side), and its length.
+
+            Args:
+                annotation: A dictionary containing the path of the image and the lanes.
+
+            Returns:
+                A dictionary containing the path of the image and the transformed lanes.
+        """
         old_lanes = annotation['lanes']
 
         # Remove lanes with less than 2 points
@@ -137,7 +159,7 @@ class LaneDataset(Dataset):
         new_annotation = {'path': annotation['path'], 'label': lanes}
         return new_annotation
     
-    def __filter_lane(self, lane):
+    def __filter_lane(self, lane:list) -> list:
         """
             Remove points with the same Y coordinate, keeping only the first occurrence.
 
@@ -145,7 +167,7 @@ class LaneDataset(Dataset):
                 lane: A list of points representing a lane.
 
             Returns:
-                A list of points representing a lane with the same Y coordinate removed.
+                filtered_lane: A list of points representing a lane without points with the same Y coordinate.
         """
         assert lane[-1][1] <= lane[0][1] # Invalid lane
         filtered_lane = []
@@ -157,9 +179,10 @@ class LaneDataset(Dataset):
 
         return filtered_lane
     
-    def __sample_lane(self, points):
+    def __sample_lane(self, points:list) -> tuple:
         """
-            Sample the lane points at the anchor points.
+            Sample the lane points at the anchor points using the interpolation function and extrapolate the lane with a straight line.
+            It also separates the points inside and outside the image.
 
             Args:
                 points: A list of points representing a lane.
@@ -204,5 +227,5 @@ class LaneDataset(Dataset):
         return (img, label)
     
     def __len__(self):
-        return len(self.__annotations)
+        return len(self.annotations)
     
