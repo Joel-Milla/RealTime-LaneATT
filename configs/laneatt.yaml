@@ -43,8 +43,14 @@ epochs: 15
 # Batch Size
 batch_size: 8
 
-# Model Checkpoint Interval
+# Model Checkpoint Path
+checkpoints_dir: "checkpoints"
+
+# Model Checkpoint Interval (in epochs)
 model_checkpoint_interval: 5
+
+# Logs Path
+logs_dir: "logs"
 
 # Dataset settings
 dataset:

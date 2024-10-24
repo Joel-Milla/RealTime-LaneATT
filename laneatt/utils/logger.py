@@ -1,7 +1,7 @@
 import logging
 import os
 
-def setup_logging():
+def setup_logging(config):
     """
         Setups the logging configuration for the project.
 
@@ -10,20 +10,20 @@ def setup_logging():
     """
 
     # Create logs directory if not exists
-    logs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
-    if not os.path.exists(logs_path):
-        os.makedirs(logs_path)
+    logs_dir = config["logs_dir"]
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
 
     # Creates the latest log file
-    log_files = os.listdir(logs_path)
+    log_files = os.listdir(logs_dir)
     log_files = [f for f in log_files if f.endswith(".log")]
     log_files.sort()
     if len(log_files) > 0:
         number = int(log_files[-1].split("_")[1].split(".")[0])
         number += 1
-        log_path = os.path.join(logs_path, "train_{:04d}.log".format(number))
+        log_path = os.path.join(logs_dir, "train_{:04d}.log".format(number))
     else:
-        log_path = os.path.join(logs_path, "train_0000.log")
+        log_path = os.path.join(logs_dir, "train_0000.log")
 
     # Specifies the format of the log messages and returns the logger
     formatter = logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s")

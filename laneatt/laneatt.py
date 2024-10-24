@@ -1,22 +1,21 @@
 from torchvision import models
 from tqdm import tqdm, trange
+from . import utils
 
 import os 
 import random
 import torch
-import utils
 import yaml
 
 import numpy as np
 import torch.nn as nn
 
 class LaneATT(nn.Module):
-    def __init__(self, config_file=os.path.join(os.path.dirname(__file__), 'config', 'laneatt.yaml')) -> None:
+    def __init__(self, config) -> None:
         super(LaneATT, self).__init__()
 
-        # Config files
-        self.__laneatt_config_path = config_file
-        self.__laneatt_config = yaml.safe_load(open(config_file))
+        # Config file
+        self.__laneatt_config = yaml.safe_load(open(config))
 
         # Load backbones config file
         self.__backbones_config = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), 'config', 'backbones.yaml')))
@@ -222,7 +221,7 @@ class LaneATT(nn.Module):
             Train the model
         """
         # Setup the logger
-        logger = utils.setup_logging()
+        logger = utils.setup_logging(self.__laneatt_config)
         logger.info('Starting training...')
 
         model = self.to(self.device)
@@ -235,7 +234,7 @@ class LaneATT(nn.Module):
         starting_epoch = 1
         # Load the last training state if the resume flag is set and modify the starting epoch and model
         if resume:
-            last_epoch, model, optimizer, scheduler = utils.load_last_train_state(model, optimizer, scheduler)
+            last_epoch, model, optimizer, scheduler = utils.load_last_train_state(model, optimizer, scheduler, self.__laneatt_config)
             starting_epoch = last_epoch + 1
         
         epochs = self.__laneatt_config['epochs']
@@ -274,7 +273,7 @@ class LaneATT(nn.Module):
 
             logger.debug('Epoch [%d/%d] finished.', epoch, epochs)
             if epoch % self.__laneatt_config['model_checkpoint_interval'] == 0:
-                utils.save_train_state(epoch, model, optimizer, scheduler)
+                utils.save_train_state(epoch, model, optimizer, scheduler, self.__laneatt_config)
 
     def __loss(self, proposals_list, targets, cls_loss_weight=10):
         focal_loss = utils.FocalLoss(alpha=0.25, gamma=2.)
@@ -475,7 +474,3 @@ class LaneATT(nn.Module):
         np_seed = torch_seed // 2**32 - 1
         random.seed(torch_seed)
         np.random.seed(np_seed)
-
-if __name__ == '__main__':
-    model = LaneATT()
-    model.train_model(resume=True)

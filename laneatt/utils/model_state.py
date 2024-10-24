@@ -2,9 +2,7 @@ import os
 import re
 import torch
 
-CHECKPOINTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'checkpoints')
-
-def load_last_train_state(model, optimizer, scheduler):
+def load_last_train_state(model, optimizer, scheduler, config):
     """
         Load the last training state from the checkpoint files.
 
@@ -12,6 +10,7 @@ def load_last_train_state(model, optimizer, scheduler):
             model: The model to be loaded.
             optimizer: The optimizer to be loaded.
             scheduler: The scheduler to be loaded.
+            config: The configuration of the training.
         
         Returns:
             epoch: The epoch of the last checkpoint.
@@ -20,15 +19,15 @@ def load_last_train_state(model, optimizer, scheduler):
             scheduler: The scheduler loaded from the last checkpoint.
     """
     
-    train_state_path, epoch = get_last_checkpoint()
-    train_state = torch.load(os.path.join(CHECKPOINTS_DIR, train_state_path), weights_only=True)
+    train_state_path, epoch = get_last_checkpoint(config)
+    train_state = torch.load(os.path.join(config['checkpoints_dir'], train_state_path), weights_only=True)
     model.load_state_dict(train_state['model'])
     optimizer.load_state_dict(train_state['optimizer'])
     scheduler.load_state_dict(train_state['scheduler'])
 
     return epoch, model, optimizer, scheduler
 
-def save_train_state(epoch, model, optimizer, scheduler):
+def save_train_state(epoch, model, optimizer, scheduler, config):
     """
         Save the training state to the checkpoint files.
 
@@ -45,9 +44,9 @@ def save_train_state(epoch, model, optimizer, scheduler):
         'optimizer': optimizer.state_dict(),
         'scheduler': scheduler.state_dict()
     }
-    torch.save(train_state, os.path.join(CHECKPOINTS_DIR, f'laneatt_{epoch}.pt'))
+    torch.save(train_state, os.path.join(config['checkpoints_dir'], f'laneatt_{epoch}.pt'))
 
-def get_last_checkpoint():
+def get_last_checkpoint(config):
     """
         Get the epoch of the last checkpoint.
 
@@ -57,7 +56,8 @@ def get_last_checkpoint():
     
     # Generate the pattern to match the checkpoint files and a list of all the checkpoint files
     pattern = re.compile('laneatt_(\\d+).pt')
-    checkpoints = [ckpt for ckpt in os.listdir(CHECKPOINTS_DIR) if re.match(pattern, ckpt) is not None]
+    checkpoints = [ckpt for ckpt in os.listdir(config['checkpoints_dir']) if re.match(pattern, ckpt) is not None]
+    if len(checkpoints) == 0: raise FileNotFoundError('No checkpoint files found.')
 
     # Get last checkpoint epoch
     latest_checkpoint_path = sorted(checkpoints, reverse=True, key=lambda name : int(name.split('_')[1].rstrip('.pt')))[0]

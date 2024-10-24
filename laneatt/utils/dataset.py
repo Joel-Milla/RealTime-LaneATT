@@ -24,7 +24,7 @@ class LaneDataset(Dataset):
         # Dataset split to load, e.g. train, val, test
         self.__split = split
         # The root directory of the dataset
-        self.__root = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.__dataset_config['root'])
+        self.__root = self.__dataset_config['root']
         # A logger object
         self.__logger = logging.getLogger(__name__)
 
