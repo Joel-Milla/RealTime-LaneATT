@@ -2,8 +2,7 @@ from .anchors import generate_anchors, get_fv_anchor_indices
 from .logger import setup_logging
 from .model_state import load_last_train_state, get_last_checkpoint
 from .dataset import LaneDataset
-# from .focal_loss import FocalLoss
-# from .matching import match_proposals_with_targets
+from .focal_loss import FocalLoss
 
 __all__ = ['generate_anchors', 
            'compute_anchors_indices', 
@@ -11,5 +10,4 @@ __all__ = ['generate_anchors',
            'load_last_train_state', 
            'get_last_checkpoint', 
            'LaneDataset', 
-           'FocalLoss',
-           'match_proposals_with_targets']
+           'FocalLoss',]

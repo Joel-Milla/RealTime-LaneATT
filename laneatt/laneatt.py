@@ -251,7 +251,7 @@ class LaneATT(nn.Module):
                 
                 # Forward pass
                 outputs = model(images)
-                #loss, loss_dict_i = model.loss(outputs, labels)
+                loss, loss_dict_i = model.loss(outputs, labels)
 
             #     # Backward and optimize
             #     optimizer.zero_grad()
@@ -268,6 +268,175 @@ class LaneATT(nn.Module):
             #     postfix_dict['loss'] = loss.item()
             #     pbar.set_postfix(ordered_dict=postfix_dict)
             # self.exp.epoch_end_callback(epoch, max_epochs, model, optimizer, scheduler)
+
+    def loss(self, proposals_list, targets, cls_loss_weight=10):
+        focal_loss = utils.FocalLoss(alpha=0.25, gamma=2.)
+        smooth_l1_loss = nn.SmoothL1Loss()
+        cls_loss = 0
+        reg_loss = 0
+        valid_imgs = len(targets)
+        total_positives = 0
+        # Iterate over each batch
+        for proposals, target in zip(proposals_list, targets):
+            # Filter lane targets that do not exist (confidence == 0)
+            target = target[target[:, 1] == 1]
+
+            # Match proposals with targets to get useful indices
+            with torch.no_grad():
+                positives_mask, invalid_offsets_mask, negatives_mask, target_positives_indices = self.__match_proposals_with_targets(self.__anchors_image, target)
+
+            # The model outputs a classification score and a regression offset for each anchor proposal
+            # So we select anchors that are most similar to the ground truth lane lines using the positive mask
+            positives = proposals[positives_mask]
+            num_positives = len(positives)
+            total_positives += num_positives
+            # Select anchors that are not similar to the ground truth lane lines using the negative mask
+            negatives = proposals[negatives_mask]
+            num_negatives = len(negatives)
+
+            # Handle edge case of no positives found by setting targets to 0 and comparing to the classification scores for all proposals that should be 0
+            # in a perfect model
+            if num_positives == 0:
+                cls_target = proposals.new_zeros(len(proposals)).long()
+                cls_pred = proposals[:, :2]
+                cls_loss += focal_loss(cls_pred, cls_target).sum()
+                continue
+
+            # Concatenate positives and negatives
+            all_proposals = torch.cat((positives, negatives), dim=0)
+            # Create a tensor containing 1 for positives and 0 for negatives
+            cls_target = proposals.new_zeros(num_positives + num_negatives).long()
+            cls_target[:num_positives] = 1.
+            # Get the classification scores
+            cls_pred = all_proposals[:, :2]
+
+            # # Regression targets
+            # reg_pred = positives[:, 4:]
+            # with torch.no_grad():
+            #     target = target[target_positives_indices]
+            #     positive_starts = (positives[:, 2] * self.n_strips).round().long()
+            #     target_starts = (target[:, 2] * self.n_strips).round().long()
+            #     target[:, 4] -= positive_starts - target_starts
+            #     all_indices = torch.arange(num_positives, dtype=torch.long)
+            #     ends = (positive_starts + target[:, 4] - 1).round().long()
+            #     invalid_offsets_mask = torch.zeros((num_positives, 1 + self.n_offsets + 1),
+            #                                        dtype=torch.int)  # length + S + pad
+            #     invalid_offsets_mask[all_indices, 1 + positive_starts] = 1
+            #     invalid_offsets_mask[all_indices, 1 + ends + 1] -= 1
+            #     invalid_offsets_mask = invalid_offsets_mask.cumsum(dim=1) == 0
+            #     invalid_offsets_mask = invalid_offsets_mask[:, :-1]
+            #     invalid_offsets_mask[:, 0] = False
+            #     reg_target = target[:, 4:]
+            #     reg_target[invalid_offsets_mask] = reg_pred[invalid_offsets_mask]
+
+            # # Loss calc
+            # reg_loss += smooth_l1_loss(reg_pred, reg_target)
+            cls_loss += focal_loss(cls_pred, cls_target).sum() / num_positives
+
+        # Batch mean
+        cls_loss /= valid_imgs
+        reg_loss /= valid_imgs
+
+        loss = cls_loss_weight * cls_loss + reg_loss
+        return loss, {'cls_loss': cls_loss, 'reg_loss': reg_loss, 'batch_positives': total_positives}
+
+    def __match_proposals_with_targets(self, proposals, targets, t_pos=15., t_neg=20.):
+        """
+            Match anchor proposals with targets
+
+            Args:
+                proposals (torch.Tensor): Anchor proposals projected to the image space
+                targets (torch.Tensor): Ground truth lane lines
+                t_pos (float): Positive threshold
+                t_neg (float): Negative threshold
+
+            Returns:
+                torch.Tensor(num_anchor_proposals): A boolean tensor indicating if the anchor proposal is a positive
+                torch.Tensor(num_positives, y_discretization+5): A boolean tensor indicating offsets that do not intersect with the target
+                torch.Tensor(num_anchor_proposals): A boolean tensor indicating if the anchor proposal is a negative
+                torch.Tensor(num_positives): A tensor with the indices of the target matched with the positive anchor proposal
+        """
+        
+        num_proposals = proposals.shape[0]
+        num_targets = targets.shape[0]
+        # Pad proposals and target for the valid_offset_mask's trick
+        proposals_pad = proposals.new_zeros(proposals.shape[0], proposals.shape[1] + 1)
+        proposals_pad[:, :-1] = proposals
+        proposals = proposals_pad
+        targets_pad = targets.new_zeros(targets.shape[0], targets.shape[1] + 1)
+        targets_pad[:, :-1] = targets
+        targets = targets_pad
+
+        # Repeat targets and proposals to compare all combinations
+        proposals = torch.repeat_interleave(proposals, num_targets, dim=0)
+        targets = torch.cat(num_proposals * [targets])
+
+        # Get start index of the proposals and targets
+        targets_starts = targets[:, 2] / self.__img_h * self.__anchor_y_discretization
+        proposals_starts = proposals[:, 2] / self.__img_h * self.__anchor_y_discretization
+        # Get the start index for the intersection
+        starts = torch.max(targets_starts, proposals_starts).round().long()
+        # Get the end index for the target line
+        ends = (targets_starts + targets[:, 4] - 1).round().long()
+        # Calculate the length of the intersection
+        lengths = ends - starts + 1
+        # In the edge case where the intersection is negative, we set the start to the end to achieve the valid_offset_mask's trick
+        ends[lengths < 0] = starts[lengths < 0] - 1
+        # Since we modify the ends, we need to recalculate the lengths
+        lengths[lengths < 0] = 0
+
+        # Generate the valid_offsets_mask that will contain the valid intersection between the proposals and the targets for all combinations
+        valid_offsets_mask = targets.new_zeros(targets.shape)
+        all_indices = torch.arange(valid_offsets_mask.shape[0], dtype=torch.long, device=targets.device)
+        # Put a one on the `start` index and a -1 on the `end` index
+        # The -1 is subtracted to account for the case where the length is zero
+        valid_offsets_mask[all_indices, 5 + starts] = 1.
+        valid_offsets_mask[all_indices, 5 + ends + 1] -= 1.
+        # Cumsum to get the valid offsets
+        # Valid offsets mask before [0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0, 0]
+        # Valid offsets mask after [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+        # And parse it to a boolean mask [False, False, False, True, True, True, True, False, False, False, False, False]
+        valid_offsets_mask = valid_offsets_mask.cumsum(dim=1) != 0.
+        # Get the invalid offsets mask by inverting the valid offsets mask
+        invalid_offsets_mask = ~valid_offsets_mask
+
+        # Compute distances between proposals and targets only inside the intersection
+        # Proposals and targets errors
+        errors = (targets - proposals)
+        # Get only the errors that are inside the intersection
+        errors = errors * valid_offsets_mask.float()
+        # Get the average distance between the proposals and the targets
+        distances = torch.abs(errors).sum(dim=1) / (lengths.float() + 1e-9) # Avoid division by zero
+
+        # For those distances where the length is zero, we set the distance to a very high number since we do not want to consider them
+        distances[lengths == 0] = 987654.
+        # Reshape the invalid offsets mask to separate the proposals and the targets, so we the invalid mask 
+        # of all targets compared to all proposals. And can be indexed by [proposal_idx, target_idx]
+        invalid_offsets_mask = invalid_offsets_mask.view(num_proposals, num_targets, -1)
+        # Reshape the distances to separate the proposals and the targets, so we can index the distances by [proposal_idx, target_idx]
+        distances = distances.view(num_proposals, num_targets)  # d[i,j] = distance from proposal i to target j
+
+        # Get the positives and negatives based on the distances
+        # This means for each proposal, we get the target with the minimum distance average error and check if it is below the positive threshold,
+        # if it is, then it is a positive, otherwise we check if it is above the negative threshold, if it is, then it is a negative.
+        # There is a hysteresis between the positive and negative thresholds to avoid uncertain predictions to pass as either positive or negative
+        positives = distances.min(dim=1)[0] < t_pos
+        negatives = distances.min(dim=1)[0] > t_neg
+
+        # Verify if there are positives
+        if positives.sum() == 0:
+            # If there are no positives, we set the target positives indices to an empty tensor
+            target_positives_indices = torch.tensor([], device=positives.device, dtype=torch.long)
+        else:
+            # If there are positives, we get the target positives indices by
+            # selecting from distances only the proposals with at least one positive (that should be in the positives tensor which is a boolean mask)
+            # and get the index of the minimum distance for each proposal.
+            target_positives_indices = distances[positives].argmin(dim=1)
+
+        # Finally we update invalid_offsets_mask to only consider the masks of targets that have been matched with a positive proposal
+        invalid_offsets_mask = invalid_offsets_mask[positives, target_positives_indices]
+
+        return positives, invalid_offsets_mask[:, :-1], negatives, target_positives_indices
 
     def __get_dataloader(self, split):
         # Create the dataset object based on TuSimple architecture
@@ -289,5 +458,4 @@ class LaneATT(nn.Module):
 
 if __name__ == '__main__':
     model = LaneATT()
-    model(torch.randn(2, 3, 1280, 720))
     model.train_model()

@@ -41,7 +41,7 @@ lr_scheduler:
 epochs: 15
 
 # Batch Size
-batch_size: 1
+batch_size: 4
 
 # Dataset settings
 dataset:
