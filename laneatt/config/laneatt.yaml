@@ -41,7 +41,10 @@ lr_scheduler:
 epochs: 15
 
 # Batch Size
-batch_size: 4
+batch_size: 8
+
+# Model Checkpoint Interval
+model_checkpoint_interval: 5
 
 # Dataset settings
 dataset:

@@ -251,26 +251,32 @@ class LaneATT(nn.Module):
                 
                 # Forward pass
                 outputs = model(images)
-                loss, loss_dict_i = model.loss(outputs, labels)
-            print(loss)
+                loss, loss_dict_i = model.__loss(outputs, labels)
 
-            #     # Backward and optimize
-            #     optimizer.zero_grad()
-            #     loss.backward()
-            #     optimizer.step()
+                # Backward and optimize
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
-            #     # Scheduler step (iteration based)
-            #     scheduler.step()
+                # Scheduler step (iteration based)
+                scheduler.step()
 
-            #     # Log
-            #     postfix_dict = {key: float(value) for key, value in loss_dict_i.items()}
-            #     postfix_dict['lr'] = optimizer.param_groups[0]["lr"]
-            #     self.exp.iter_end_callback(epoch, max_epochs, i, len(train_loader), loss.item(), postfix_dict)
-            #     postfix_dict['loss'] = loss.item()
-            #     pbar.set_postfix(ordered_dict=postfix_dict)
-            # self.exp.epoch_end_callback(epoch, max_epochs, model, optimizer, scheduler)
+                # Log
+                postfix_dict = {key: float(value) for key, value in loss_dict_i.items()}
+                postfix_dict['lr'] = optimizer.param_groups[0]["lr"]
 
-    def loss(self, proposals_list, targets, cls_loss_weight=10):
+                line = 'Epoch [{}/{}] - Iter [{}/{}] - Loss: {:.5f} - '.format(epoch, epochs, i, len(train_loader), loss.item())
+                line += ' - '.join(['{}: {:.5f}'.format(component, postfix_dict[component]) for component in postfix_dict])
+                logger.debug(line)
+                
+                postfix_dict['loss'] = loss.item()
+                pbar.set_postfix(ordered_dict=postfix_dict)
+
+            logger.debug('Epoch [%d/%d] finished.', epoch, epochs)
+            if epoch % self.__laneatt_config['model_checkpoint_interval'] == 0:
+                utils.save_train_state(epoch, model, optimizer, scheduler)
+
+    def __loss(self, proposals_list, targets, cls_loss_weight=10):
         focal_loss = utils.FocalLoss(alpha=0.25, gamma=2.)
         smooth_l1_loss = nn.SmoothL1Loss()
         cls_loss = 0
