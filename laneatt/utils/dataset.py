@@ -1,3 +1,7 @@
+from torch.utils.data import Dataset
+from torchvision.transforms import ToTensor
+from scipy.interpolate import InterpolatedUnivariateSpline
+
 import cv2
 import json
 import logging
@@ -5,10 +9,6 @@ import os
 import random
 
 import numpy as np
-
-from torch.utils.data import Dataset
-from torchvision.transforms import ToTensor
-from scipy.interpolate import InterpolatedUnivariateSpline
 
 SPLIT_FILES = {
     'train+val': ['label_data_0313.json', 'label_data_0601.json', 'label_data_0531.json'],

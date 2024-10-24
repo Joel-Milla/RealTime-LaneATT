@@ -1,3 +1,6 @@
+from torchvision import models
+from tqdm import tqdm, trange
+
 import os 
 import random
 import torch
@@ -6,9 +9,6 @@ import yaml
 
 import numpy as np
 import torch.nn as nn
-
-from torchvision import models
-from tqdm import tqdm, trange
 
 class LaneATT(nn.Module):
     def __init__(self, config_file=os.path.join(os.path.dirname(__file__), 'config', 'laneatt.yaml')) -> None:
@@ -252,6 +252,7 @@ class LaneATT(nn.Module):
                 # Forward pass
                 outputs = model(images)
                 loss, loss_dict_i = model.loss(outputs, labels)
+            print(loss)
 
             #     # Backward and optimize
             #     optimizer.zero_grad()
@@ -310,27 +311,40 @@ class LaneATT(nn.Module):
             # Get the classification scores
             cls_pred = all_proposals[:, :2]
 
-            # # Regression targets
-            # reg_pred = positives[:, 4:]
-            # with torch.no_grad():
-            #     target = target[target_positives_indices]
-            #     positive_starts = (positives[:, 2] * self.n_strips).round().long()
-            #     target_starts = (target[:, 2] * self.n_strips).round().long()
-            #     target[:, 4] -= positive_starts - target_starts
-            #     all_indices = torch.arange(num_positives, dtype=torch.long)
-            #     ends = (positive_starts + target[:, 4] - 1).round().long()
-            #     invalid_offsets_mask = torch.zeros((num_positives, 1 + self.n_offsets + 1),
-            #                                        dtype=torch.int)  # length + S + pad
-            #     invalid_offsets_mask[all_indices, 1 + positive_starts] = 1
-            #     invalid_offsets_mask[all_indices, 1 + ends + 1] -= 1
-            #     invalid_offsets_mask = invalid_offsets_mask.cumsum(dim=1) == 0
-            #     invalid_offsets_mask = invalid_offsets_mask[:, :-1]
-            #     invalid_offsets_mask[:, 0] = False
-            #     reg_target = target[:, 4:]
-            #     reg_target[invalid_offsets_mask] = reg_pred[invalid_offsets_mask]
+            # Regression from the positive anchors
+            reg_pred = positives[:, 4:]
+            with torch.no_grad():
+                # Extract the targets that are matched with the positive anchors, could be repeated
+                target = target[target_positives_indices]
+                # Get the start index of the positive anchors and the target
+                positive_starts = (positives[:, 2] / self.__img_h * self.__anchor_y_discretization).round().long()
+                target_starts = (target[:, 2]  / self.__img_h * self.__anchor_y_discretization).round().long()
+                # Adjust the target length according to the start intersection
+                target[:, 4] -= positive_starts - target_starts
+                # Create a tensor to store an index for each model output
+                all_indices = torch.arange(num_positives, device=self.device, dtype=torch.long)
+                # Get the end index of the intersection based on the positive start index and the target length
+                ends = (positive_starts + target[:, 4] - 1).round().long()
+                # Uses the same trick as matching proposals with targets to get the invalid offsets mask
+                invalid_offsets_mask = torch.zeros((num_positives, 1 + self.__anchor_y_discretization + 1), device=self.device, dtype=torch.int)  # length + S + pad
+                invalid_offsets_mask[all_indices, 1 + positive_starts] = 1
+                invalid_offsets_mask[all_indices, 1 + ends + 1] -= 1
+                invalid_offsets_mask = invalid_offsets_mask.cumsum(dim=1) == 0
+                invalid_offsets_mask = invalid_offsets_mask[:, :-1]
+                invalid_offsets_mask[:, 0] = False
+                # Get the regression target
+                reg_target = target[:, 4:]
+                # Get the regression prediction where no intersection is found and assign it to the target
+                # This is done to complete incomplete targets and do not consider them in the regression loss
+                # Because even though targets are not full height, predictions are made for the full height
+                # And we have to counteract this effect
+                reg_target[invalid_offsets_mask] = reg_pred[invalid_offsets_mask]
 
             # # Loss calc
-            # reg_loss += smooth_l1_loss(reg_pred, reg_target)
+            reg_loss += smooth_l1_loss(reg_pred, reg_target)
+            # Get the classification loss per anchor, adds them to get entire loss and divide by the number of positives 
+            # It is not very clear why divide by the number of positives, but it might be to compensate for the number of
+            # positives in the batch
             cls_loss += focal_loss(cls_pred, cls_target).sum() / num_positives
 
         # Batch mean

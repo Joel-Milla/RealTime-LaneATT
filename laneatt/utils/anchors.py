@@ -1,8 +1,8 @@
+from typing import List
+
 import torch
 
 import numpy as np
-
-from typing import List
 
 def generate_anchors(y_discretization:int, x_discretization:int, left_angles:list, right_angles:list, bottom_angles:list, fv_size:tuple, img_size:tuple) -> List[torch.Tensor]:
     """
