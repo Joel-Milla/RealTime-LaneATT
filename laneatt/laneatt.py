@@ -478,4 +478,4 @@ class LaneATT(nn.Module):
 
 if __name__ == '__main__':
     model = LaneATT()
-    model.train_model()
+    model.train_model(resume=True)

@@ -2,6 +2,8 @@ import os
 import re
 import torch
 
+CHECKPOINTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'checkpoints')
+
 def load_last_train_state(model, optimizer, scheduler):
     """
         Load the last training state from the checkpoint files.
@@ -19,7 +21,7 @@ def load_last_train_state(model, optimizer, scheduler):
     """
     
     train_state_path, epoch = get_last_checkpoint()
-    train_state = torch.load(train_state_path)
+    train_state = torch.load(os.path.join(CHECKPOINTS_DIR, train_state_path), weights_only=True)
     model.load_state_dict(train_state['model'])
     optimizer.load_state_dict(train_state['optimizer'])
     scheduler.load_state_dict(train_state['scheduler'])
@@ -43,7 +45,7 @@ def save_train_state(epoch, model, optimizer, scheduler):
         'optimizer': optimizer.state_dict(),
         'scheduler': scheduler.state_dict()
     }
-    torch.save(train_state, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'checkpoints', f'model_{epoch}.pt'))
+    torch.save(train_state, os.path.join(CHECKPOINTS_DIR, f'laneatt_{epoch}.pt'))
 
 def get_last_checkpoint():
     """
@@ -54,12 +56,11 @@ def get_last_checkpoint():
     """
     
     # Generate the pattern to match the checkpoint files and a list of all the checkpoint files
-    pattern = re.compile('model_(\\d+).pt')
-    checkpoints = os.listdir(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'checkpoints'))
-    checkpoints = [ckpt for ckpt in checkpoints if re.match(pattern, ckpt) is not None]
+    pattern = re.compile('laneatt_(\\d+).pt')
+    checkpoints = [ckpt for ckpt in os.listdir(CHECKPOINTS_DIR) if re.match(pattern, ckpt) is not None]
 
     # Get last checkpoint epoch
-    latest_checkpoint_path = sorted(checkpoints, reverse=True, key=lambda name : name.split('_')[1])[0]
+    latest_checkpoint_path = sorted(checkpoints, reverse=True, key=lambda name : int(name.split('_')[1].rstrip('.pt')))[0]
     epoch = latest_checkpoint_path.split('_')[1].rstrip('.pt')
 
     return latest_checkpoint_path, int(epoch)
