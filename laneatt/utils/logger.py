@@ -1,7 +1,7 @@
 import logging
 import os
 
-def setup_logging(config):
+def setup_logging(logs_dir):
     """
         Setups the logging configuration for the project.
 
@@ -10,7 +10,6 @@ def setup_logging(config):
     """
 
     # Create logs directory if not exists
-    logs_dir = config["logs_dir"]
     if not os.path.exists(logs_dir):
         os.makedirs(logs_dir)
 

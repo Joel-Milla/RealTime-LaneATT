@@ -221,7 +221,7 @@ class LaneATT(nn.Module):
             Train the model
         """
         # Setup the logger
-        logger = utils.setup_logging(self.__laneatt_config)
+        logger = utils.setup_logging(self.__laneatt_config['logs_dir'])
         logger.info('Starting training...')
 
         model = self.to(self.device)
