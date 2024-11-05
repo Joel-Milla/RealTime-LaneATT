@@ -1,4 +1,12 @@
 **/__pycache__/
 /datasets/
-/checkpoints/laneatt_5.pt
-/checkpoints/laneatt_10.pt
+/checkpoints/laneatt_20.pt
+/checkpoints/laneatt_25.pt
+/checkpoints/laneatt_30.pt
+/checkpoints/laneatt_35.pt
+/checkpoints/laneatt_40.pt
+/checkpoints/laneatt_45.pt
+/checkpoints/laneatt_50.pt
+/checkpoints/laneatt_55.pt
+/checkpoints/laneatt_60.pt
+/checkpoints/laneatt_65.pt

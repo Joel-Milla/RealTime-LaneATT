@@ -2,6 +2,7 @@ from torchvision import models
 from tqdm import tqdm, trange
 from . import utils
 
+import cv2
 import os 
 import random
 import torch
@@ -9,6 +10,7 @@ import yaml
 
 import numpy as np
 import torch.nn as nn
+import torch.nn.functional as F
 
 class LaneATT(nn.Module):
     def __init__(self, config) -> None:
@@ -234,7 +236,7 @@ class LaneATT(nn.Module):
         starting_epoch = 1
         # Load the last training state if the resume flag is set and modify the starting epoch and model
         if resume:
-            last_epoch, model, optimizer, scheduler = utils.load_last_train_state(model, optimizer, scheduler, self.__laneatt_config)
+            last_epoch, model, optimizer, scheduler = utils.load_last_train_state(model, optimizer, scheduler, self.__laneatt_config['checkpoints_dir'])
             starting_epoch = last_epoch + 1
         
         epochs = self.__laneatt_config['epochs']
@@ -250,7 +252,7 @@ class LaneATT(nn.Module):
                 
                 # Forward pass
                 outputs = model(images)
-                loss, loss_dict_i = model.__loss(outputs, labels)
+                loss, loss_dict_i = model.__loss(outputs, labels, images)
 
                 # Backward and optimize
                 optimizer.zero_grad()
@@ -273,9 +275,9 @@ class LaneATT(nn.Module):
 
             logger.debug('Epoch [%d/%d] finished.', epoch, epochs)
             if epoch % self.__laneatt_config['model_checkpoint_interval'] == 0:
-                utils.save_train_state(epoch, model, optimizer, scheduler, self.__laneatt_config)
+                utils.save_train_state(epoch, model, optimizer, scheduler, self.__laneatt_config['checkpoints_dir'])
 
-    def __loss(self, proposals_list, targets, cls_loss_weight=10):
+    def __loss(self, proposals_list, targets, images, cls_loss_weight=10):
         focal_loss = utils.FocalLoss(alpha=0.25, gamma=2.)
         smooth_l1_loss = nn.SmoothL1Loss()
         cls_loss = 0
@@ -283,7 +285,7 @@ class LaneATT(nn.Module):
         valid_imgs = len(targets)
         total_positives = 0
         # Iterate over each batch
-        for proposals, target in zip(proposals_list, targets):
+        for i, (proposals, target) in enumerate(zip(proposals_list, targets)):
             # Filter lane targets that do not exist (confidence == 0)
             target = target[target[:, 1] == 1]
 
@@ -294,6 +296,7 @@ class LaneATT(nn.Module):
             # The model outputs a classification score and a regression offset for each anchor proposal
             # So we select anchors that are most similar to the ground truth lane lines using the positive mask
             positives = proposals[positives_mask]
+
             num_positives = len(positives)
             total_positives += num_positives
             # Select anchors that are not similar to the ground truth lane lines using the negative mask
@@ -344,6 +347,31 @@ class LaneATT(nn.Module):
                 # Because even though targets are not full height, predictions are made for the full height
                 # And we have to counteract this effect
                 reg_target[invalid_offsets_mask] = reg_pred[invalid_offsets_mask]
+
+            good_proposals = proposals[proposals[:, 1] > 0.5]
+
+            img = images[i].cpu().numpy().transpose(1, 2, 0)
+            img = cv2.resize(img, (640, 360))
+            ys = torch.linspace(self.__img_h, 0, self.__anchor_y_discretization, device=self.device)
+            # output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in target]
+            # for j, lane in enumerate(output):
+            #     prev_x, prev_y = lane[0]
+            #     #print(target[j][4].item())
+            #     for i, (x, y) in enumerate(lane):
+            #         if i == target[j][4].item(): break
+            #         cv2.line(img, (int(prev_x), int(prev_y)), (int(x), int(y)), (255, 0, 0), 2)
+            #         prev_x, prev_y = x, y
+
+            output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in good_proposals]
+            for j, lane in enumerate(output):
+                prev_x, prev_y = lane[0]
+                print(good_proposals[j][4].item())
+                for i, (x, y) in enumerate(lane):
+                    if int(good_proposals[j][4].item()) == i: break
+                    cv2.line(img, (int(prev_x), int(prev_y)), (int(x), int(y)), (0, 255, 0), 2)
+                    prev_x, prev_y = x, y
+            cv2.imshow('frame', img)
+            cv2.waitKey(0)
 
             # # Loss calc
             reg_loss += smooth_l1_loss(reg_pred, reg_target)
@@ -467,6 +495,23 @@ class LaneATT(nn.Module):
                                                    num_workers=20,
                                                    worker_init_fn=self.__worker_init_fn_)
         return train_loader
+    
+    def load(self, checkpoint):
+        """
+            Load the model from a checkpoint file
+
+            Args:
+                checkpoint (str): Checkpoint file
+        """
+        train_state = torch.load(checkpoint, weights_only=True)
+        self.load_state_dict(train_state['model'])
+
+    def postprocess(self, output, threshold=0.5):
+        good_proposals = output[output[:, 1] > threshold]
+        ys = torch.linspace(self.__img_h, 0, self.__anchor_y_discretization, device=self.device)
+        output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in good_proposals]
+        return output
+
     
     @staticmethod
     def __worker_init_fn_(_):

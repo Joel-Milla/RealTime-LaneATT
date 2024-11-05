@@ -1,0 +1,14 @@
+[2024-11-05 09:31:11,274] [laneatt.utils.logger] [INFO] Starting training...
+[2024-11-05 09:31:11,526] [laneatt.utils.dataset] [INFO] Loading TuSimple annotations...
+[2024-11-05 09:31:11,614] [laneatt.utils.dataset] [INFO] 3268 annotations loaded, with a maximum of 5 lanes in an image.
+[2024-11-05 09:31:11,615] [laneatt.utils.dataset] [INFO] Transforming annotations to the model's target format...
+[2024-11-05 09:31:12,688] [laneatt.utils.dataset] [INFO] Annotations transformed.
+[2024-11-05 09:31:12,689] [laneatt.utils.logger] [DEBUG] Epoch [71/100] starting.
+[2024-11-05 09:31:21,894] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [0/409] - Loss: 0.65607 - cls_loss: 0.00732 - reg_loss: 0.58289 - batch_positives: 134.00000 - lr: 0.00009
+[2024-11-05 09:31:26,723] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [1/409] - Loss: 0.73285 - cls_loss: 0.00112 - reg_loss: 0.72163 - batch_positives: 134.00000 - lr: 0.00009
+[2024-11-05 09:31:31,606] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [2/409] - Loss: 0.41897 - cls_loss: 0.00063 - reg_loss: 0.41269 - batch_positives: 123.00000 - lr: 0.00009
+[2024-11-05 09:31:40,915] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [3/409] - Loss: 0.63415 - cls_loss: 0.00107 - reg_loss: 0.62344 - batch_positives: 130.00000 - lr: 0.00009
+[2024-11-05 09:31:58,925] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [4/409] - Loss: 0.52582 - cls_loss: 0.00070 - reg_loss: 0.51879 - batch_positives: 124.00000 - lr: 0.00009
+[2024-11-05 09:32:38,825] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [5/409] - Loss: 0.56246 - cls_loss: 0.00246 - reg_loss: 0.53786 - batch_positives: 122.00000 - lr: 0.00009
+[2024-11-05 09:32:44,486] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [6/409] - Loss: 0.48640 - cls_loss: 0.00083 - reg_loss: 0.47810 - batch_positives: 124.00000 - lr: 0.00009
+[2024-11-05 09:33:44,379] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [7/409] - Loss: 0.45032 - cls_loss: 0.00062 - reg_loss: 0.44412 - batch_positives: 123.00000 - lr: 0.00009
