@@ -1,68 +1,40 @@
 from laneatt import LaneATT
+from torchvision.transforms import ToTensor
 
 import cv2
 import os
-import torch
-import random
-from PIL import Image
 
-MODEL_TO_LOAD = 'laneatt_70.pt'
+import numpy as np
+
+MODEL_TO_LOAD = 'laneatt_50.pt'
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'checkpoints', MODEL_TO_LOAD)
-
+    
 if __name__ == '__main__':
-    # Load the model
     laneatt = LaneATT(config=os.path.join(os.path.dirname(__file__), 'configs', 'laneatt.yaml'))
     laneatt.load(MODEL_PATH)
     laneatt.eval()
-
-    # Display the result
-    img = cv2.imread(os.path.join(os.path.dirname(__file__), '20.jpg'))
-    img = cv2.resize(img, (640, 360))
-
-    # Perform inference
-    output = laneatt(torch.from_numpy(img).unsqueeze(0).permute(0, 3, 1, 2).float()).squeeze(0)
-    processed_output = laneatt.postprocess(output, threshold=1.0)
-
-    for i, lane in enumerate(processed_output):
-        prev_x, prev_y = lane[0]
-        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        print(output[i][4].item())
-        for j, (x, y) in enumerate(lane):
-            if j == int(output[i][4].item()): break
-            cv2.line(img, (int(prev_x), int(prev_y)), (int(x), int(y)), color, 2)
-            prev_x, prev_y = x, y
-
-    cv2.imshow('frame', img)
-    cv2.waitKey(0)
     
-    # # Start the webcam
-    # cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
 
-    # while True:
-    #     # Capture frame-by-frame
-    #     ret, frame = cap.read()
+        if ret:
+            # Resize frame to the model's trained size
+            frame = cv2.resize(frame, (laneatt.img_w, laneatt.img_h))
+            # Convert frame to tensor
+            img_tensor = ToTensor()((frame.copy()/255.0).astype(np.float32)).permute(0, 1, 2)
 
-    #     # If a frame was returned, display it
-    #     if ret:
-    #         # Perform inference
-    #         output = laneatt(torch.from_numpy(frame).unsqueeze(0).permute(0, 3, 1, 2).float())
-    #         output = laneatt.postprocess(output, threshold=0.2)
+            # Predict
+            output = laneatt(img_tensor.unsqueeze(0)).squeeze(0)
 
-    #         for lane in output:
-    #             prev_x, prev_y = lane[0]
-    #             color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-    #             for x, y in lane:
-    #                 cv2.line(frame, (int(prev_x), int(prev_y)), (int(x), int(y)), color, 2)
-    #                 prev_x, prev_y = x, y
+            # Plot the lanes above the threshold onto the frame and show it
+            laneatt.plot(output, frame, threshold=0.5)
 
-    #         cv2.imshow('frame', frame)
-
-    #         if cv2.waitKey(1) == ord('q'):  # Press 'q' to quit
-    #             break
-    #     else:
-    #         print("Cannot receive frame")
-    #         break
-    
-    # # When everything done, release the capture
-    # cap.release()
-    # cv2.destroyAllWindows()
+            # Wait for 'q' key to quit
+            if cv2.waitKey(1) == ord('q'):
+                break
+        else:
+            print("Cannot receive frame")
+            break
+    cap.release()
+    cv2.destroyAllWindows()

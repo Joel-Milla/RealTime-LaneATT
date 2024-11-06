@@ -38,7 +38,7 @@ lr_scheduler:
     T_max: 166650
 
 # Epochs
-epochs: 100
+epochs: 50
 
 # Batch Size
 batch_size: 8

@@ -1,9 +1,0 @@
-[2024-11-05 09:45:43,754] [laneatt.utils.logger] [INFO] Starting training...
-[2024-11-05 09:45:44,016] [laneatt.utils.dataset] [INFO] Loading TuSimple annotations...
-[2024-11-05 09:45:44,140] [laneatt.utils.dataset] [INFO] 3268 annotations loaded, with a maximum of 5 lanes in an image.
-[2024-11-05 09:45:44,140] [laneatt.utils.dataset] [INFO] Transforming annotations to the model's target format...
-[2024-11-05 09:45:45,649] [laneatt.utils.dataset] [INFO] Annotations transformed.
-[2024-11-05 09:45:45,650] [laneatt.utils.logger] [DEBUG] Epoch [71/100] starting.
-[2024-11-05 09:46:03,218] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [0/409] - Loss: 0.47961 - cls_loss: 0.00494 - reg_loss: 0.43021 - batch_positives: 138.00000 - lr: 0.00009
-[2024-11-05 09:46:09,882] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [1/409] - Loss: 0.48646 - cls_loss: 0.00458 - reg_loss: 0.44068 - batch_positives: 123.00000 - lr: 0.00009
-[2024-11-05 09:46:14,523] [laneatt.utils.logger] [DEBUG] Epoch [71/100] - Iter [2/409] - Loss: 0.58651 - cls_loss: 0.00069 - reg_loss: 0.57964 - batch_positives: 101.00000 - lr: 0.00009

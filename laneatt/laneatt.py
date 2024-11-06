@@ -115,6 +115,14 @@ class LaneATT(nn.Module):
         # Move the model to the device
         self.__backbone.to(self.device)
 
+    @property
+    def img_w(self):
+        return self.__img_w
+    
+    @property
+    def img_h(self):
+        return self.__img_h
+
     def forward(self, x):
         """
             Forward pass of the model
@@ -252,7 +260,7 @@ class LaneATT(nn.Module):
                 
                 # Forward pass
                 outputs = model(images)
-                loss, loss_dict_i = model.__loss(outputs, labels, images)
+                loss, loss_dict_i = model.__loss(outputs, labels)
 
                 # Backward and optimize
                 optimizer.zero_grad()
@@ -277,7 +285,7 @@ class LaneATT(nn.Module):
             if epoch % self.__laneatt_config['model_checkpoint_interval'] == 0:
                 utils.save_train_state(epoch, model, optimizer, scheduler, self.__laneatt_config['checkpoints_dir'])
 
-    def __loss(self, proposals_list, targets, images, cls_loss_weight=10):
+    def __loss(self, proposals_list, targets, cls_loss_weight=10):
         focal_loss = utils.FocalLoss(alpha=0.25, gamma=2.)
         smooth_l1_loss = nn.SmoothL1Loss()
         cls_loss = 0
@@ -347,31 +355,6 @@ class LaneATT(nn.Module):
                 # Because even though targets are not full height, predictions are made for the full height
                 # And we have to counteract this effect
                 reg_target[invalid_offsets_mask] = reg_pred[invalid_offsets_mask]
-
-            good_proposals = proposals[proposals[:, 1] > 0.5]
-
-            img = images[i].cpu().numpy().transpose(1, 2, 0)
-            img = cv2.resize(img, (640, 360))
-            ys = torch.linspace(self.__img_h, 0, self.__anchor_y_discretization, device=self.device)
-            # output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in target]
-            # for j, lane in enumerate(output):
-            #     prev_x, prev_y = lane[0]
-            #     #print(target[j][4].item())
-            #     for i, (x, y) in enumerate(lane):
-            #         if i == target[j][4].item(): break
-            #         cv2.line(img, (int(prev_x), int(prev_y)), (int(x), int(y)), (255, 0, 0), 2)
-            #         prev_x, prev_y = x, y
-
-            output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in good_proposals]
-            for j, lane in enumerate(output):
-                prev_x, prev_y = lane[0]
-                print(good_proposals[j][4].item())
-                for i, (x, y) in enumerate(lane):
-                    if int(good_proposals[j][4].item()) == i: break
-                    cv2.line(img, (int(prev_x), int(prev_y)), (int(x), int(y)), (0, 255, 0), 2)
-                    prev_x, prev_y = x, y
-            cv2.imshow('frame', img)
-            cv2.waitKey(0)
 
             # # Loss calc
             reg_loss += smooth_l1_loss(reg_pred, reg_target)
@@ -506,12 +489,29 @@ class LaneATT(nn.Module):
         train_state = torch.load(checkpoint, weights_only=True)
         self.load_state_dict(train_state['model'])
 
-    def postprocess(self, output, threshold=0.5):
+    def plot(self, output, image, threshold=0.5):
+        """
+            Plot the lane lines on the image
+
+            Args:
+                output (torch.Tensor): Regression proposals
+                image (np.ndarray): Image
+                threshold (float): Threshold
+        """
         good_proposals = output[output[:, 1] > threshold]
         ys = torch.linspace(self.__img_h, 0, self.__anchor_y_discretization, device=self.device)
         output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in good_proposals]
-        return output
 
+        img = cv2.resize(image, (self.__img_w, self.__img_h))
+        for i, lane in enumerate(output):
+            prev_x, prev_y = lane[0]
+            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            for j, (x, y) in enumerate(lane):
+                if int(good_proposals[i][4].item()) == j: break
+                cv2.line(img, (int(prev_x), int(prev_y)), (int(x), int(y)), color, 2)
+                prev_x, prev_y = x, y
+
+        cv2.imshow('frame', img)
     
     @staticmethod
     def __worker_init_fn_(_):

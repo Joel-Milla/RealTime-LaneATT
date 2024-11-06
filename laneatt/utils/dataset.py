@@ -222,6 +222,7 @@ class LaneDataset(Dataset):
     def __getitem__(self, idx):
         item = self.annotations[idx]
         img_org = cv2.imread(item['path'])
+        img_org = cv2.resize(img_org, (self.img_w, self.img_h))
         img = ToTensor()((img_org.copy()/255.0).astype(np.float32))
         label = item['label']
         return (img, label)
