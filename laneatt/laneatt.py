@@ -386,7 +386,6 @@ class LaneATT(nn.Module):
                 torch.Tensor(num_anchor_proposals): A boolean tensor indicating if the anchor proposal is a negative
                 torch.Tensor(num_positives): A tensor with the indices of the target matched with the positive anchor proposal
         """
-        
         num_proposals = proposals.shape[0]
         num_targets = targets.shape[0]
         # Pad proposals and target for the valid_offset_mask's trick

@@ -38,10 +38,10 @@ lr_scheduler:
     T_max: 166650
 
 # Epochs
-epochs: 50
+epochs: 300
 
 # Batch Size
-batch_size: 8
+batch_size: 16
 
 # Model Checkpoint Path
 checkpoints_dir: "checkpoints"
@@ -55,13 +55,13 @@ logs_dir: "logs"
 # Dataset settings
 dataset:
   train:
-    split: train+val
-    root: "datasets/tusimple_train/"
+    split: train
+    root: "dataset_generator/greenhouse_train/"
 
   val:
     split: val
-    root: "datasets/tusimple_train/"
+    root: "dataset_generator/greenhouse_val/"
 
   test:
     split: test
-    root: "datasets/tusimple_test/"
+    root: "dataset_generator/greenhouse_test/"

@@ -11,7 +11,6 @@ import random
 import numpy as np
 
 SPLIT_FILES = {
-    'train+val': ['label_data_0313.json', 'label_data_0601.json', 'label_data_0531.json'],
     'train': ['label_data_0313.json', 'label_data_0601.json'],
     'val': ['label_data_0531.json'],
     'test': ['test_label.json'],
@@ -32,12 +31,10 @@ class LaneDataset(Dataset):
         self.img_w, self.img_h = self.__general_config['image_size']['width'], self.__general_config['image_size']['height']
         self.dataset_img_w, self.dataset_img_h = self.__general_config['dataset_image_size']['width'], self.__general_config['dataset_image_size']['height']
 
-        # Verify that the split exists
-        if split not in SPLIT_FILES.keys():
-            raise Exception('Split `{}` does not exist.'.format(split))
-
         # Load the annotation files
-        self.__annotation_files = [os.path.join(self.__root, path) for path in SPLIT_FILES[split]]
+        jsons = os.listdir(self.__root)
+        jsons = [j for j in jsons if j.endswith('.json')]
+        self.__annotation_files = [os.path.join(self.__root, json) for json in jsons]
 
         # Verify that the root directory is specified
         if self.__root is None:
@@ -74,7 +71,10 @@ class LaneDataset(Dataset):
             # Iterate over the lines in the annotation file
             for line in lines:
                 # Load the JSON line data
-                data = json.loads(line)
+                try:
+                    data = json.loads(line)
+                except:
+                    print('Error loading JSON line:', line)
                 # Get the lanes y coordinates
                 y_samples = data['h_samples']
                 # Get the lanes x coordinates

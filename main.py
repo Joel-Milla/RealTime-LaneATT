@@ -3,10 +3,11 @@ from torchvision.transforms import ToTensor
 
 import cv2
 import os
+import time
 
 import numpy as np
 
-MODEL_TO_LOAD = 'laneatt_50.pt'
+MODEL_TO_LOAD = 'laneatt_300.pt'
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'checkpoints', MODEL_TO_LOAD)
     
 if __name__ == '__main__':
@@ -15,7 +16,9 @@ if __name__ == '__main__':
     laneatt.eval()
     
     cap = cv2.VideoCapture(0)
+    #start, end = time.time(), time.time()
     while True:
+        #start = time.time()
         ret, frame = cap.read()
 
         if ret:
@@ -28,7 +31,7 @@ if __name__ == '__main__':
             output = laneatt(img_tensor.unsqueeze(0)).squeeze(0)
 
             # Plot the lanes above the threshold onto the frame and show it
-            laneatt.plot(output, frame, threshold=0.5)
+            laneatt.plot(output, frame, threshold=0.0)
 
             # Wait for 'q' key to quit
             if cv2.waitKey(1) == ord('q'):
@@ -36,5 +39,6 @@ if __name__ == '__main__':
         else:
             print("Cannot receive frame")
             break
+
     cap.release()
     cv2.destroyAllWindows()

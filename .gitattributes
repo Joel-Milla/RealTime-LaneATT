@@ -1,1 +1,1 @@
-checkpoints/laneatt_50.pt filter=lfs diff=lfs merge=lfs -text
+checkpoints/laneatt_300.pt filter=lfs diff=lfs merge=lfs -text
