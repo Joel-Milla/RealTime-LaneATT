@@ -16,9 +16,7 @@ if __name__ == '__main__':
     laneatt.eval()
     
     cap = cv2.VideoCapture(0)
-    #start, end = time.time(), time.time()
     while True:
-        #start = time.time()
         ret, frame = cap.read()
 
         if ret:

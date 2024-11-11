@@ -1,4 +1,4 @@
 **/__pycache__/
 /datasets/
-/dataset_generator/
+/dataset_generator/greenhouse*
 /checkpoints/laneatt_0.pt
