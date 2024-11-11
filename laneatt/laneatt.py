@@ -488,7 +488,55 @@ class LaneATT(nn.Module):
         train_state = torch.load(checkpoint, weights_only=True)
         self.load_state_dict(train_state['model'])
 
-    def plot(self, output, image, threshold=0.5):
+    def nms(self, output, threshold=0.5, nms_threshold=40):
+        good_proposals = output[output[:, 1] > threshold]
+        good_proposals = good_proposals[good_proposals[:, 3].argsort(descending=True)]
+        if len(good_proposals) == 0: return good_proposals
+
+        good_proposals_mask = np.zeros((len(good_proposals), len(good_proposals)), dtype=bool)
+        for i, line_a in enumerate(good_proposals):
+            start_a = line_a[2] / self.__img_h * self.__anchor_y_discretization
+            end_a = line_a[2] + line_a[4]
+            for j, line_b in enumerate(good_proposals):
+                start_b = line_b[2] / self.__img_h * self.__anchor_y_discretization
+                end_b = line_b[2] + line_b[4] - 1
+                
+                start = int(max(start_a, start_b))
+                end = int(min(end_a, end_b, self.__anchor_y_discretization))
+
+                error = 0
+                for k in range(start, end):
+                    error += abs(line_a[5 + k] - line_b[5 + k])
+                error /= end - start
+                error = error.item()
+
+                good_proposals_mask[i][j] = error < nms_threshold
+
+        unique_line_indexes = [0]
+        while True:
+            line = good_proposals_mask[unique_line_indexes[-1]]
+            found_different = False
+            for i, cmp_line in enumerate(line):
+                if not cmp_line and i > unique_line_indexes[-1]:
+                    unique_line_indexes.append(i)
+                    found_different = True
+                    break
+            
+            if not found_different:
+                break
+
+        high_confidence_unique_line_indexes = [0 for _ in range(len(unique_line_indexes))]
+        for i in range(len(unique_line_indexes)):
+            if i == len(unique_line_indexes) - 1:
+                high_confidence_unique_line_indexes[i] = good_proposals[unique_line_indexes[i]:][:, 1].argmax().item()
+            else:
+                high_confidence_unique_line_indexes[i] = good_proposals[unique_line_indexes[i]:unique_line_indexes[i+1]][:, 1].argmax().item()
+            
+            high_confidence_unique_line_indexes[i] += unique_line_indexes[i]
+                
+        return good_proposals[unique_line_indexes]
+                
+    def plot(self, output, image):
         """
             Plot the lane lines on the image
 
@@ -497,7 +545,7 @@ class LaneATT(nn.Module):
                 image (np.ndarray): Image
                 threshold (float): Threshold
         """
-        good_proposals = output[output[:, 1] > threshold]
+        good_proposals = output
         ys = torch.linspace(self.__img_h, 0, self.__anchor_y_discretization, device=self.device)
         output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in good_proposals]
 

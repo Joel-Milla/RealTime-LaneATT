@@ -29,9 +29,10 @@ if __name__ == '__main__':
 
             # Predict
             output = laneatt(img_tensor.unsqueeze(0)).squeeze(0)
+            output = laneatt.nms(output, nms_threshold=50)
 
             # Plot the lanes above the threshold onto the frame and show it
-            laneatt.plot(output, frame, threshold=0.0)
+            laneatt.plot(output, frame)
 
             # Wait for 'q' key to quit
             if cv2.waitKey(1) == ord('q'):

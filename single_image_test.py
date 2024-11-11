@@ -34,5 +34,6 @@ if __name__ == '__main__':
                 img = cv2.resize(img, (laneatt.img_w, laneatt.img_h))
                 img_tensor = ToTensor()((img.copy()/255.0).astype(np.float32)).permute(0, 1, 2)
                 output = laneatt(img_tensor.unsqueeze(0)).squeeze(0)
-                laneatt.plot(output, img, threshold=0.5)
+                output = laneatt.nms(output, nms_threshold=50)
+                laneatt.plot(output, img)
                 cv2.waitKey(0)
