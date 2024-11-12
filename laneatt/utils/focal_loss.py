@@ -4,8 +4,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Source: https://github.com/kornia/kornia/blob/f4f70fefb63287f72bc80cd96df9c061b1cb60dd/kornia/losses/focal.py
-
 def one_hot(labels: torch.Tensor,
             num_classes: int,
             device: Optional[torch.device] = None,
@@ -29,12 +27,15 @@ def one_hot(labels: torch.Tensor,
                                                         0,       [1, 0]
                                                         1,]      [0, 1]]
     """
+    # Data validation
     if not torch.is_tensor(labels):
         raise TypeError("Input labels type is not a torch.Tensor. Got {}".format(type(labels)))
     if not labels.dtype == torch.int64:
         raise ValueError("labels must be of the same dtype torch.int64. Got: {}".format(labels.dtype))
     if num_classes < 1:
         raise ValueError("The number of classes must be bigger than one." " Got: {}".format(num_classes))
+    
+    # Compute the one hot tensor
     shape = labels.shape
     one_hot = torch.zeros(shape[0], num_classes, *shape[1:], device=device, dtype=dtype)
     return one_hot.scatter_(1, labels.unsqueeze(1), 1.0) + eps
@@ -93,10 +94,27 @@ def focal_loss(input: torch.Tensor,
 
 class FocalLoss(nn.Module):
     def __init__(self, alpha: float, gamma: float = 2.0) -> None:
+        """
+            Focal loss function initialization.
+
+            Args:
+                alpha (float): Weighting factor in range (0,1) to balance positive vs negative samples.
+                gamma (float): Focusing parameter for modulating factor (1 - p_t)^gamma.
+        """
         super(FocalLoss, self).__init__()
         self.alpha: float = alpha
         self.gamma: float = gamma
         self.eps: float = 1e-6
 
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """
+            Forward pass of the focal loss.
+
+            Args:
+                input (torch.Tensor): the input tensor with the logits.
+                target (torch.Tensor): the target tensor with the labels indices.
+
+            Returns:
+                torch.Tensor: the computed loss for each proposal.
+        """
         return focal_loss(input, target, self.alpha, self.gamma, self.eps)

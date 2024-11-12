@@ -10,14 +10,15 @@ import random
 
 import numpy as np
 
-SPLIT_FILES = {
-    'train': ['label_data_0313.json', 'label_data_0601.json'],
-    'val': ['label_data_0531.json'],
-    'test': ['test_label.json'],
-}
-
 class LaneDataset(Dataset):
     def __init__(self, config:str, split:str) -> None:
+        """
+            Initialize the LaneDataset object.
+
+            Args:
+                config: The path to the configuration file.
+                split: The dataset split to load, e.g. train, val, test.
+        """
         self.__general_config = config
         self.__dataset_config = config['dataset'][split]
         # Dataset split to load, e.g. train, val, test
@@ -27,7 +28,7 @@ class LaneDataset(Dataset):
         # A logger object
         self.__logger = logging.getLogger(__name__)
 
-        # Image width and height
+        # Image width and height (model's input size and dataset's image size)
         self.img_w, self.img_h = self.__general_config['image_size']['width'], self.__general_config['image_size']['height']
         self.dataset_img_w, self.dataset_img_h = self.__general_config['dataset_image_size']['width'], self.__general_config['dataset_image_size']['height']
 
@@ -40,10 +41,12 @@ class LaneDataset(Dataset):
         if self.__root is None:
             raise Exception('Please specify the root directory')
 
+        # Load the annotations
         self.annotations = []
         self.max_lanes = 0
         self.__load_annotations()
 
+        # Transform the annotations to the model's target format
         self.__logger.info("Transforming annotations to the model's target format...")
         self.__y_discretizations = self.__general_config['anchor_discretization']['y']
         self.__ys = np.linspace(1, 0, self.__y_discretizations)
@@ -113,6 +116,7 @@ class LaneDataset(Dataset):
                 annotation: A dictionary containing the path of the image and the lanes.
 
             Returns:
+                A dictionary containing the path of the image and the transformed lanes.Returns:
                 A dictionary containing the path of the image and the transformed lanes.
         """
         old_lanes = annotation['lanes']
@@ -220,6 +224,15 @@ class LaneDataset(Dataset):
         return xs_outside_image, xs_inside_image
 
     def __getitem__(self, idx):
+        """
+            Get an item from the dataset.
+
+            Args:
+                idx: The index of the item to get.
+
+            Returns:
+                A tuple containing the image (matrix) and the label (tensor of lane format).
+        """
         item = self.annotations[idx]
         img_org = cv2.imread(item['path'])
         img_org = cv2.resize(img_org, (self.img_w, self.img_h))

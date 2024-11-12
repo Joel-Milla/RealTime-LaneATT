@@ -1,6 +1,6 @@
+from . import utils
 from torchvision import models
 from tqdm import tqdm, trange
-from . import utils
 
 import cv2
 import os 
@@ -10,10 +10,15 @@ import yaml
 
 import numpy as np
 import torch.nn as nn
-import torch.nn.functional as F
 
 class LaneATT(nn.Module):
-    def __init__(self, config) -> None:
+    def __init__(self, config:str) -> None:
+        """
+            LaneATT model initialization.
+
+            Args:
+                config (str): Path to the configuration file
+        """
         super(LaneATT, self).__init__()
 
         # Config file
@@ -81,16 +86,25 @@ class LaneATT(nn.Module):
         self.__reg_layer = nn.Linear(2 * self.__feature_volume_channels * self.__feature_volume_height, self.__anchor_y_discretization + 1).to(self.device)
 
     @property
-    def backbone(self):
+    def backbone(self) -> nn.Module:
+        """
+            Get the backbone (RESNET) of the model
+        """
         return self.__backbone
     
     @backbone.setter
-    def backbone(self, value):
+    def backbone(self, value:str) -> None:
         """
             Set the backbone for the model taking into account available backbones in the config file
             It cuts the average pooling and fully connected layer from the backbone and adds a convolutional 
             layer to reduce the dimensionality to the desired feature volume channels and moves the model 
             to the device
+
+            Args:
+                value (str): Backbone name
+            
+            Raises:
+                ValueError: If the backbone is not in the list of backbones in the config file
         """
         # Lower the value to avoid case sensitivity
         value = value.lower()
@@ -116,14 +130,14 @@ class LaneATT(nn.Module):
         self.__backbone.to(self.device)
 
     @property
-    def img_w(self):
+    def img_w(self) -> int:
         return self.__img_w
     
     @property
-    def img_h(self):
+    def img_h(self) -> int:
         return self.__img_h
 
-    def forward(self, x):
+    def forward(self, x:torch.Tensor) -> torch.Tensor:
         """
             Forward pass of the model
 
@@ -190,7 +204,197 @@ class LaneATT(nn.Module):
 
         return reg_proposals
     
-    def __cut_anchor_features(self, feature_volumes):
+    def nms(self, output:torch.Tensor, threshold:float=0.5, nms_threshold:float=40.0) -> torch.Tensor:
+        """
+            Apply non-maximum suppression to the proposals
+
+            Args:
+                output (torch.Tensor): Regression proposals
+                threshold (float): Threshold for valid proposals
+                nms_threshold (float): NMS threshold
+
+            Returns:
+                torch.Tensor: Good proposals NMS suppressed 
+        """
+        # Filter proposals with confidence below the threshold and sort them by confidence
+        good_proposals = output[output[:, 1] > threshold]
+        good_proposals = good_proposals[good_proposals[:, 3].argsort(descending=True)]
+        # Verify if there are no proposals
+        if len(good_proposals) == 0: return good_proposals
+
+        # Create a mask to store the same line proposals
+        good_proposals_mask = np.zeros((len(good_proposals), len(good_proposals)), dtype=bool)
+        # Iterate over the proposals
+        for i, line_a in enumerate(good_proposals):
+            # Get the start and end of the current proposal
+            start_a = line_a[2] / self.__img_h * self.__anchor_y_discretization
+            end_a = line_a[2] + line_a[4]
+            # Iterate over the rest of the proposals
+            for j, line_b in enumerate(good_proposals):
+                # Get the start and end of the current comparison proposal
+                start_b = line_b[2] / self.__img_h * self.__anchor_y_discretization
+                end_b = line_b[2] + line_b[4] - 1
+                
+                # Get the start and end intersection between the proposals
+                start = int(max(start_a, start_b))
+                end = int(min(end_a, end_b, self.__anchor_y_discretization))
+
+                # Calculate the error between the proposals
+                error = 0
+                for k in range(start, end):
+                    error += abs(line_a[5 + k] - line_b[5 + k])
+                error /= end - start
+                error = error.item()
+
+                # If the error is below the NMS threshold, we consider the proposals to represent the same line
+                good_proposals_mask[i][j] = error < nms_threshold
+
+        # List to store the indexes of the unique lines
+        unique_line_indexes = [0]
+        while True:
+            # Get a unique line
+            line = good_proposals_mask[unique_line_indexes[-1]]
+            found_different = False
+            # Iterate over a unique line against the rest of the proposals errors
+            for i, cmp_line in enumerate(line):
+                # If the line is different and the index is greater than the last unique line index we found a different line
+                # so we append it to the unique line indexes
+                if not cmp_line and i > unique_line_indexes[-1]:
+                    unique_line_indexes.append(i)
+                    found_different = True
+                    break
+            
+            # If we stop finding different lines, we break the loop
+            if not found_different:
+                break
+
+        # Based on the unique line indexes, we get a range of similar lines and get the one with the highest confidence
+        # Create a list to store the high confidence unique line indexes
+        high_confidence_unique_line_indexes = [0 for _ in range(len(unique_line_indexes))]
+        # Iterate over the unique line indexes
+        for i in range(len(unique_line_indexes)):
+            # Verify if we are in the last unique line index
+            if i == len(unique_line_indexes) - 1:
+                # If so, we get the highest confidence line from the last unique line index to the end
+                high_confidence_unique_line_indexes[i] = good_proposals[unique_line_indexes[i]:][:, 1].argmax().item()
+            else:
+                # Otherwise, we get the highest confidence line from the current unique line index to the next unique line index
+                high_confidence_unique_line_indexes[i] = good_proposals[unique_line_indexes[i]:unique_line_indexes[i+1]][:, 1].argmax().item()
+            
+            # Add an offset to counteract for the list slicing
+            high_confidence_unique_line_indexes[i] += unique_line_indexes[i]
+                
+        return good_proposals[unique_line_indexes]
+                
+    def plot(self, output:torch.Tensor, image:np.ndarray) -> None:
+        """
+            Plot the lane lines on the image
+
+            Args:
+                output (torch.Tensor): Regression proposals
+                image (np.ndarray): Image
+        """
+        proposals_length = output[:, 4]
+        # Get the y discretization values
+        ys = torch.linspace(self.__img_h, 0, self.__anchor_y_discretization, device=self.device)
+        # Store x and y values for each lane line
+        output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in output]
+
+        # Resize the image to the model's trained size
+        img = cv2.resize(image, (self.__img_w, self.__img_h))
+        # Iterate over the lanes
+        for i, lane in enumerate(output):
+            # Internal loop variables to account for the first point and the change in color of the lines
+            prev_x, prev_y = lane[0]
+            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            # Iterate over the line points
+            for j, (x, y) in enumerate(lane):
+                # Break the loop if the proposal length is reached
+                if int(proposals_length[i].item()) == j: break
+                # Draw a line between the previous point and the current point
+                cv2.line(img, (int(prev_x), int(prev_y)), (int(x), int(y)), color, 2)
+                prev_x, prev_y = x, y
+
+        # Show the image
+        cv2.imshow('frame', img)
+
+    def train_model(self, resume:bool=False):
+        """
+            Train the model
+        """
+        # Setup the logger
+        logger = utils.setup_logging(self.__laneatt_config['logs_dir'])
+        logger.info('Starting training...')
+
+        model = self.to(self.device)
+
+        # Get the optimizer and the scheduler from the config file
+        optimizer = getattr(torch.optim, self.__laneatt_config['optimizer']['name'])(model.parameters(), **self.__laneatt_config['optimizer']['parameters'])
+        scheduler = getattr(torch.optim.lr_scheduler, self.__laneatt_config['lr_scheduler']['name'])(optimizer, **self.__laneatt_config['lr_scheduler']['parameters'])
+
+        # State the starting epoch
+        starting_epoch = 1
+        # Load the last training state if the resume flag is set and modify the starting epoch and model
+        if resume:
+            last_epoch, model, optimizer, scheduler = utils.load_last_train_state(model, optimizer, scheduler, self.__laneatt_config['checkpoints_dir'])
+            starting_epoch = last_epoch + 1
+        
+        # Get the number of epochs from the config file and the train loader
+        epochs = self.__laneatt_config['epochs']
+        train_loader = self.__get_dataloader('train')
+
+        # Iterate over the epochs
+        for epoch in trange(starting_epoch, epochs + 1, initial=starting_epoch - 1, total=epochs):
+            logger.debug('Epoch [%d/%d] starting.', epoch, epochs)
+            # Put the model in training mode
+            model.train()
+            # Get the progress bar object based on the train loader
+            pbar = tqdm(train_loader)
+            # Iterate over the batches
+            for i, (images, labels) in enumerate(pbar):
+                # Move the images and labels to the device
+                images = images.to(self.device)
+                labels = labels.to(self.device)
+                
+                # Forward pass
+                outputs = model(images)
+                loss, loss_dict_i = model.__loss(outputs, labels)
+
+                # Backward and optimize
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+                # Scheduler step (iteration based)
+                scheduler.step()
+
+                # Log
+                postfix_dict = {key: float(value) for key, value in loss_dict_i.items()}
+                postfix_dict['lr'] = optimizer.param_groups[0]["lr"]
+
+                line = 'Epoch [{}/{}] - Iter [{}/{}] - Loss: {:.5f} - '.format(epoch, epochs, i, len(train_loader), loss.item())
+                line += ' - '.join(['{}: {:.5f}'.format(component, postfix_dict[component]) for component in postfix_dict])
+                logger.debug(line)
+                
+                postfix_dict['loss'] = loss.item()
+                pbar.set_postfix(ordered_dict=postfix_dict)
+
+            logger.debug('Epoch [%d/%d] finished.', epoch, epochs)
+            # Save the model state every model_checkpoint_interval epochs from the config file
+            if epoch % self.__laneatt_config['model_checkpoint_interval'] == 0:
+                utils.save_train_state(epoch, model, optimizer, scheduler, self.__laneatt_config['checkpoints_dir'])
+
+    def load(self, checkpoint:str):
+        """
+            Load the model from a checkpoint file
+
+            Args:
+                checkpoint (str): Checkpoint file
+        """
+        train_state = torch.load(checkpoint, weights_only=True)
+        self.load_state_dict(train_state['model'])
+
+    def __cut_anchor_features(self, feature_volumes:torch.Tensor) -> torch.Tensor:
         """
             Extracts anchor features from the feature volumes
 
@@ -226,66 +430,18 @@ class LaneATT(nn.Module):
 
         return batch_anchor_features
 
-    def train_model(self, resume=False):
+    def __loss(self, proposals_list:torch.Tensor, targets:torch.Tensor, cls_loss_weight:int=10) -> torch.Tensor:
         """
-            Train the model
+            Compute the loss of the model
+
+            Args:
+                proposals_list (torch.Tensor): Tensor of proposals
+                targets (torch.Tensor): Tensor of targets
+
+            Returns:
+                torch.Tensor: Loss value in Tensor format
         """
-        # Setup the logger
-        logger = utils.setup_logging(self.__laneatt_config['logs_dir'])
-        logger.info('Starting training...')
-
-        model = self.to(self.device)
-
-        # Get the optimizer and the scheduler from the config file
-        optimizer = getattr(torch.optim, self.__laneatt_config['optimizer']['name'])(model.parameters(), **self.__laneatt_config['optimizer']['parameters'])
-        scheduler = getattr(torch.optim.lr_scheduler, self.__laneatt_config['lr_scheduler']['name'])(optimizer, **self.__laneatt_config['lr_scheduler']['parameters'])
-
-        # State the starting epoch
-        starting_epoch = 1
-        # Load the last training state if the resume flag is set and modify the starting epoch and model
-        if resume:
-            last_epoch, model, optimizer, scheduler = utils.load_last_train_state(model, optimizer, scheduler, self.__laneatt_config['checkpoints_dir'])
-            starting_epoch = last_epoch + 1
-        
-        epochs = self.__laneatt_config['epochs']
-        train_loader = self.__get_dataloader('train')
-
-        for epoch in trange(starting_epoch, epochs + 1, initial=starting_epoch - 1, total=epochs):
-            logger.debug('Epoch [%d/%d] starting.', epoch, epochs)
-            model.train()
-            pbar = tqdm(train_loader)
-            for i, (images, labels) in enumerate(pbar):
-                images = images.to(self.device)
-                labels = labels.to(self.device)
-                
-                # Forward pass
-                outputs = model(images)
-                loss, loss_dict_i = model.__loss(outputs, labels)
-
-                # Backward and optimize
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-                # Scheduler step (iteration based)
-                scheduler.step()
-
-                # Log
-                postfix_dict = {key: float(value) for key, value in loss_dict_i.items()}
-                postfix_dict['lr'] = optimizer.param_groups[0]["lr"]
-
-                line = 'Epoch [{}/{}] - Iter [{}/{}] - Loss: {:.5f} - '.format(epoch, epochs, i, len(train_loader), loss.item())
-                line += ' - '.join(['{}: {:.5f}'.format(component, postfix_dict[component]) for component in postfix_dict])
-                logger.debug(line)
-                
-                postfix_dict['loss'] = loss.item()
-                pbar.set_postfix(ordered_dict=postfix_dict)
-
-            logger.debug('Epoch [%d/%d] finished.', epoch, epochs)
-            if epoch % self.__laneatt_config['model_checkpoint_interval'] == 0:
-                utils.save_train_state(epoch, model, optimizer, scheduler, self.__laneatt_config['checkpoints_dir'])
-
-    def __loss(self, proposals_list, targets, cls_loss_weight=10):
+        # Initialize the variables for the losses
         focal_loss = utils.FocalLoss(alpha=0.25, gamma=2.)
         smooth_l1_loss = nn.SmoothL1Loss()
         cls_loss = 0
@@ -367,10 +523,11 @@ class LaneATT(nn.Module):
         cls_loss /= valid_imgs
         reg_loss /= valid_imgs
 
+        # Total loss
         loss = cls_loss_weight * cls_loss + reg_loss
         return loss, {'cls_loss': cls_loss, 'reg_loss': reg_loss, 'batch_positives': total_positives}
 
-    def __match_proposals_with_targets(self, proposals, targets, t_pos=15., t_neg=20.):
+    def __match_proposals_with_targets(self, proposals:torch.Tensor, targets:torch.Tensor, t_pos:int=15., t_neg:int=20.) -> torch.Tensor:
         """
             Match anchor proposals with targets
 
@@ -467,101 +624,36 @@ class LaneATT(nn.Module):
 
         return positives, invalid_offsets_mask[:, :-1], negatives, target_positives_indices
 
-    def __get_dataloader(self, split):
+    def __get_dataloader(self, split:str) -> torch.utils.data.DataLoader:
+        """
+            Get the dataloader object
+
+            Args:
+                split (str): Split
+
+            Returns:
+                torch.utils.data.DataLoader: Dataloader object
+        """
         # Create the dataset object based on TuSimple architecture
         train_dataset = utils.LaneDataset(self.__laneatt_config, split)
         # Create the dataloader object
         train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                    batch_size=self.__laneatt_config['batch_size'],
                                                    shuffle=True,
-                                                   num_workers=20,
                                                    worker_init_fn=self.__worker_init_fn_)
         return train_loader
     
-    def load(self, checkpoint):
-        """
-            Load the model from a checkpoint file
-
-            Args:
-                checkpoint (str): Checkpoint file
-        """
-        train_state = torch.load(checkpoint, weights_only=True)
-        self.load_state_dict(train_state['model'])
-
-    def nms(self, output, threshold=0.5, nms_threshold=40):
-        good_proposals = output[output[:, 1] > threshold]
-        good_proposals = good_proposals[good_proposals[:, 3].argsort(descending=True)]
-        if len(good_proposals) == 0: return good_proposals
-
-        good_proposals_mask = np.zeros((len(good_proposals), len(good_proposals)), dtype=bool)
-        for i, line_a in enumerate(good_proposals):
-            start_a = line_a[2] / self.__img_h * self.__anchor_y_discretization
-            end_a = line_a[2] + line_a[4]
-            for j, line_b in enumerate(good_proposals):
-                start_b = line_b[2] / self.__img_h * self.__anchor_y_discretization
-                end_b = line_b[2] + line_b[4] - 1
-                
-                start = int(max(start_a, start_b))
-                end = int(min(end_a, end_b, self.__anchor_y_discretization))
-
-                error = 0
-                for k in range(start, end):
-                    error += abs(line_a[5 + k] - line_b[5 + k])
-                error /= end - start
-                error = error.item()
-
-                good_proposals_mask[i][j] = error < nms_threshold
-
-        unique_line_indexes = [0]
-        while True:
-            line = good_proposals_mask[unique_line_indexes[-1]]
-            found_different = False
-            for i, cmp_line in enumerate(line):
-                if not cmp_line and i > unique_line_indexes[-1]:
-                    unique_line_indexes.append(i)
-                    found_different = True
-                    break
-            
-            if not found_different:
-                break
-
-        high_confidence_unique_line_indexes = [0 for _ in range(len(unique_line_indexes))]
-        for i in range(len(unique_line_indexes)):
-            if i == len(unique_line_indexes) - 1:
-                high_confidence_unique_line_indexes[i] = good_proposals[unique_line_indexes[i]:][:, 1].argmax().item()
-            else:
-                high_confidence_unique_line_indexes[i] = good_proposals[unique_line_indexes[i]:unique_line_indexes[i+1]][:, 1].argmax().item()
-            
-            high_confidence_unique_line_indexes[i] += unique_line_indexes[i]
-                
-        return good_proposals[unique_line_indexes]
-                
-    def plot(self, output, image):
-        """
-            Plot the lane lines on the image
-
-            Args:
-                output (torch.Tensor): Regression proposals
-                image (np.ndarray): Image
-                threshold (float): Threshold
-        """
-        good_proposals = output
-        ys = torch.linspace(self.__img_h, 0, self.__anchor_y_discretization, device=self.device)
-        output = [[(x, ys[i]) for i, x in enumerate(lane[5:])] for lane in good_proposals]
-
-        img = cv2.resize(image, (self.__img_w, self.__img_h))
-        for i, lane in enumerate(output):
-            prev_x, prev_y = lane[0]
-            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            for j, (x, y) in enumerate(lane):
-                if int(good_proposals[i][4].item()) == j: break
-                cv2.line(img, (int(prev_x), int(prev_y)), (int(x), int(y)), color, 2)
-                prev_x, prev_y = x, y
-
-        cv2.imshow('frame', img)
-    
     @staticmethod
     def __worker_init_fn_(_):
+        """
+            Worker initialization function
+
+            Args:
+                _ (int): Worker id
+
+            Notes:
+                This function is used to set the seed of the workers to avoid randomness
+        """
         torch_seed = torch.initial_seed()
         np_seed = torch_seed // 2**32 - 1
         random.seed(torch_seed)

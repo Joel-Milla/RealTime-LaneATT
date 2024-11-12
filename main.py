@@ -22,12 +22,12 @@ if __name__ == '__main__':
         if ret:
             # Resize frame to the model's trained size
             frame = cv2.resize(frame, (laneatt.img_w, laneatt.img_h))
-            # Convert frame to tensor
+            # Convert frame to tensor and normalize
             img_tensor = ToTensor()((frame.copy()/255.0).astype(np.float32)).permute(0, 1, 2)
 
             # Predict
             output = laneatt(img_tensor.unsqueeze(0)).squeeze(0)
-            output = laneatt.nms(output, nms_threshold=50)
+            output = laneatt.nms(output)
 
             # Plot the lanes above the threshold onto the frame and show it
             laneatt.plot(output, frame)
