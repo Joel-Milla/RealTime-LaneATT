@@ -25,7 +25,7 @@ class LaneATT(nn.Module):
         self.__laneatt_config = yaml.safe_load(open(config))
 
         # Load backbones config file
-        self.__backbones_config = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), 'utils', 'backbones.yaml')))
+        self.__backbones_config = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), 'config', 'backbones.yaml')))
 
         # Set anchor feature channels
         self.__feature_volume_channels = self.__laneatt_config['feature_volume_channels']
