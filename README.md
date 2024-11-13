@@ -1,5 +1,7 @@
 # RealTime-LaneATT
 
+![model flow chart](assets/model.jpg)
+
 A Real Time approach to Lane Detection for greenhouse environments based on the paper "Keep your attention on the lane" by Lucas Tabelini, Rodrigo Berriel, Thiago M. Paixao, Claudine Badue, Alberto F. De Souza, Thiago Oliveira-Santos.
 
 ---------------
