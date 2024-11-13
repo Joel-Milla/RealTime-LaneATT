@@ -16,7 +16,7 @@ A Real Time approach to Lane Detection for greenhouse environments based on the 
 **Introduction**
 ---------------
 
-`Realtime-LaneATT` is a novel line detection model designed specifically for identifying greenhouse line delimitations. Building on previous work in the field, we have developed a real-time lane attention mechanism that enables accurate and efficient detection of greenhouses in images and videos.
+`Realtime-LaneATT` is a novel line detection model designed specifically for identifying greenhouse line delimitations. Building on previous work in the field, we have developed a real-time lane attention mechanism that enables accurate and efficient detection of line delimitations in greenhouses in images and videos.
 
 **Key Features**
 ----------------
