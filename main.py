@@ -3,7 +3,6 @@ from torchvision.transforms import ToTensor
 
 import cv2
 import os
-import time
 
 import numpy as np
 

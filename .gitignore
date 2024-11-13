@@ -4,3 +4,7 @@
 /checkpoints/laneatt_0.pt
 /model_animation.py
 /media
+/dist
+/laneatt.egg-info
+setup.py
+setup.cfg
