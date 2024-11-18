@@ -41,7 +41,7 @@ lr_scheduler:
 epochs: 300
 
 # Batch Size
-batch_size: 16
+batch_size: 8
 
 # Model Checkpoint Path
 checkpoints_dir: "checkpoints"

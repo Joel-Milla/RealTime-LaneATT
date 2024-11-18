@@ -2,6 +2,7 @@
 /datasets/
 /dataset_generator/
 /checkpoints/laneatt_0.pt
+/checkpoints/laneatt_5.pt
 /model_animation.py
 /media
 /dist

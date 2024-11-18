@@ -49,6 +49,9 @@ class LaneATT(nn.Module):
         # Creates the backbone and moves it to the device
         self.backbone = self.__laneatt_config['backbone']
 
+        # Setup the logger
+        self.logger = utils.setup_logging(self.__laneatt_config['logs_dir'])
+
         # Generate Anchors Proposals
         self.__anchors_image, self.__anchors_feature_volume = utils.generate_anchors(y_discretization=self.__anchor_y_discretization, 
                                                                                     x_discretization=self.__anchor_x_discretization,
@@ -84,6 +87,8 @@ class LaneATT(nn.Module):
         # Convolutional layer for the classification and regression tasks
         self.__cls_layer = nn.Linear(2 * self.__feature_volume_channels * self.__feature_volume_height, 2).to(self.device)
         self.__reg_layer = nn.Linear(2 * self.__feature_volume_channels * self.__feature_volume_height, self.__anchor_y_discretization + 1).to(self.device)
+
+        self.__focal_loss = utils.FocalLoss(alpha=0.25, gamma=2.)
 
     @property
     def backbone(self) -> nn.Module:
@@ -322,9 +327,7 @@ class LaneATT(nn.Module):
         """
             Train the model
         """
-        # Setup the logger
-        logger = utils.setup_logging(self.__laneatt_config['logs_dir'])
-        logger.info('Starting training...')
+        self.logger.info('Starting training...')
 
         model = self.to(self.device)
 
@@ -345,7 +348,7 @@ class LaneATT(nn.Module):
 
         # Iterate over the epochs
         for epoch in trange(starting_epoch, epochs + 1, initial=starting_epoch - 1, total=epochs):
-            logger.debug('Epoch [%d/%d] starting.', epoch, epochs)
+            self.logger.info('Epoch [%d/%d] starting.', epoch, epochs)
             # Put the model in training mode
             model.train()
             # Get the progress bar object based on the train loader
@@ -374,15 +377,106 @@ class LaneATT(nn.Module):
 
                 line = 'Epoch [{}/{}] - Iter [{}/{}] - Loss: {:.5f} - '.format(epoch, epochs, i, len(train_loader), loss.item())
                 line += ' - '.join(['{}: {:.5f}'.format(component, postfix_dict[component]) for component in postfix_dict])
-                logger.debug(line)
+                self.logger.debug(line)
                 
                 postfix_dict['loss'] = loss.item()
                 pbar.set_postfix(ordered_dict=postfix_dict)
 
-            logger.debug('Epoch [%d/%d] finished.', epoch, epochs)
+            self.logger.debug('Epoch [%d/%d] finished.', epoch, epochs)
+            self.eval_model()
             # Save the model state every model_checkpoint_interval epochs from the config file
             if epoch % self.__laneatt_config['model_checkpoint_interval'] == 0:
                 utils.save_train_state(epoch, model, optimizer, scheduler, self.__laneatt_config['checkpoints_dir'])
+
+    def eval_model(self):
+        """
+            Evaluate the model
+        """
+        self.logger.info('Starting evaluation...')
+
+        model = self.to(self.device)
+
+        # Get the test loader
+        val_loader = self.__get_dataloader('val')
+
+        # Put the model in evaluation mode
+        model.eval()
+        # Get the progress bar object based on the test loader
+        pbar = tqdm(val_loader)
+        # Iterate over the batches
+        accumulator = {'cls_loss': 0, 'reg_loss': 0, 'loss': 0}
+        precision, recall = 0, 0
+        for i, (images, labels) in enumerate(pbar):
+            # Move the images and labels to the device
+            images = images.to(self.device)
+            labels = labels.to(self.device)
+            
+            # Forward pass
+            outputs = model(images)
+            loss, loss_dict_i = model.__loss(outputs, labels)
+
+            p, r = self.__presicion_recall(outputs, labels)
+            precision += p
+            recall += r
+
+            accumulator['cls_loss'] += loss_dict_i['cls_loss'].to('cpu').item()
+            accumulator['reg_loss'] += loss_dict_i['reg_loss'].to('cpu').item()
+            accumulator['loss'] += loss.to('cpu').item()
+
+            postfix_dict = {key: float(value) for key, value in loss_dict_i.items()}
+            line = 'Iter [{}/{}] - Loss: {:.5f} - '.format(i, len(val_loader), loss.item())
+            line += ' - '.join(['{}: {:.5f}'.format(component, postfix_dict[component]) for component in postfix_dict])
+            self.logger.debug(line)
+
+            postfix_dict['loss'] = loss.item()
+            pbar.set_postfix(ordered_dict=postfix_dict)
+        
+        # Compute the average loss
+        for key in accumulator:
+            accumulator[key] /= len(val_loader)
+        
+        precision /= len(val_loader)
+        recall /= len(val_loader)
+        f1_score = 2 * (precision * recall) / (precision + recall + 1e-6)
+        
+        self.logger.info('Evaluation finished. Loss: {:.5f} - Cls Loss: {:.5f} - Reg Loss: {:.5f} - Precision: {:.5f} - Recall: {:.5f} - F1: {:.5f}'.format(accumulator['loss'], accumulator['cls_loss'], accumulator['reg_loss'], precision, recall, f1_score))
+
+    def __presicion_recall(self, proposals_list:torch.Tensor, targets:torch.Tensor, threshold:float=0.5) -> torch.Tensor:
+        """
+            Compute the precision and recall of the model
+
+            Args:
+                proposals_list (torch.Tensor): Tensor of proposals
+                targets (torch.Tensor): Tensor of targets
+                threshold (float): Threshold for valid proposals
+
+            Returns:
+                torch.Tensor: Precision and Recall values
+        """
+        num_positives = 0
+        num_negatives = 0
+        false_negatives = 0
+        for proposals, target in zip(proposals_list, targets):
+            # Match proposals with targets to get useful indices
+            with torch.no_grad():
+                positives_mask, invalid_offsets_mask, negatives_mask, target_positives_indices, fn = self.__match_proposals_with_targets(self.__anchors_image, target)
+
+            # The model outputs a classification score and a regression offset for each anchor proposal
+            # So we select anchors that are most similar to the ground truth lane lines using the positive mask
+            positives = proposals[positives_mask]
+            positives = positives[positives[:, 1] > threshold]
+            num_positives += len(positives)
+            # Select anchors that are not similar to the ground truth lane lines using the negative mask
+            negatives = proposals[negatives_mask]
+            negatives = negatives[negatives[:, 1] > threshold]
+            num_negatives += len(negatives)
+            # False negatives are the number of positives that are not detected
+            false_negatives += fn
+        
+        precision = num_positives / (num_positives + num_negatives + 1e-6)
+        recall = num_positives / (num_positives + false_negatives + 1e-6)
+
+        return precision, recall
 
     def load(self, checkpoint:str):
         """
@@ -442,20 +536,19 @@ class LaneATT(nn.Module):
                 torch.Tensor: Loss value in Tensor format
         """
         # Initialize the variables for the losses
-        focal_loss = utils.FocalLoss(alpha=0.25, gamma=2.)
         smooth_l1_loss = nn.SmoothL1Loss()
         cls_loss = 0
         reg_loss = 0
         valid_imgs = len(targets)
         total_positives = 0
         # Iterate over each batch
-        for i, (proposals, target) in enumerate(zip(proposals_list, targets)):
+        for proposals, target in zip(proposals_list, targets):
             # Filter lane targets that do not exist (confidence == 0)
             target = target[target[:, 1] == 1]
 
             # Match proposals with targets to get useful indices
             with torch.no_grad():
-                positives_mask, invalid_offsets_mask, negatives_mask, target_positives_indices = self.__match_proposals_with_targets(self.__anchors_image, target)
+                positives_mask, invalid_offsets_mask, negatives_mask, target_positives_indices, _ = self.__match_proposals_with_targets(self.__anchors_image, target)
 
             # The model outputs a classification score and a regression offset for each anchor proposal
             # So we select anchors that are most similar to the ground truth lane lines using the positive mask
@@ -472,7 +565,7 @@ class LaneATT(nn.Module):
             if num_positives == 0:
                 cls_target = proposals.new_zeros(len(proposals)).long()
                 cls_pred = proposals[:, :2]
-                cls_loss += focal_loss(cls_pred, cls_target).sum()
+                cls_loss += self.__focal_loss(cls_pred, cls_target).sum()
                 continue
 
             # Concatenate positives and negatives
@@ -517,7 +610,7 @@ class LaneATT(nn.Module):
             # Get the classification loss per anchor, adds them to get entire loss and divide by the number of positives 
             # It is not very clear why divide by the number of positives, but it might be to compensate for the number of
             # positives in the batch
-            cls_loss += focal_loss(cls_pred, cls_target).sum() / num_positives
+            cls_loss += self.__focal_loss(cls_pred, cls_target).sum() / num_positives
 
         # Batch mean
         cls_loss /= valid_imgs
@@ -552,6 +645,7 @@ class LaneATT(nn.Module):
         targets_pad = targets.new_zeros(targets.shape[0], targets.shape[1] + 1)
         targets_pad[:, :-1] = targets
         targets = targets_pad
+        num_targets = targets.shape[0]
 
         # Repeat targets and proposals to compare all combinations
         proposals = torch.repeat_interleave(proposals, num_targets, dim=0)
@@ -609,6 +703,8 @@ class LaneATT(nn.Module):
         positives = distances.min(dim=1)[0] < t_pos
         negatives = distances.min(dim=1)[0] > t_neg
 
+        false_negatives = distances.min(dim=0)[0] > t_neg
+
         # Verify if there are positives
         if positives.sum() == 0:
             # If there are no positives, we set the target positives indices to an empty tensor
@@ -622,7 +718,7 @@ class LaneATT(nn.Module):
         # Finally we update invalid_offsets_mask to only consider the masks of targets that have been matched with a positive proposal
         invalid_offsets_mask = invalid_offsets_mask[positives, target_positives_indices]
 
-        return positives, invalid_offsets_mask[:, :-1], negatives, target_positives_indices
+        return positives, invalid_offsets_mask[:, :-1], negatives, target_positives_indices, false_negatives.sum()
 
     def __get_dataloader(self, split:str) -> torch.utils.data.DataLoader:
         """
