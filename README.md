@@ -68,9 +68,13 @@ The model was tested on a NVIDIA GeForce RTX 3070 ti laptop GPU, with an average
 
 * This repository contains the source code for the `Realtime-LaneATT` model, but the installation method is through the `pip` package manager. To install the package, run the following command:
 
+## installation
+
 ```bash
 pip install laneatt
 ```
+
+## Video Inference
 
 To perform real-time inference on a video stream, you can use the following code snippet:
 
@@ -187,6 +191,50 @@ dataset:
   test:
     root: "dataset_generator/greenhouse_test/"
 ```
+
+You will also need a model checkpoint file. You can use our pretrained model, `laneatt_100.pt`, which can be downloaded from [here](https://github.com/PaoloReyes/RealTime-LaneATT/tree/main/checkpoints).
+
+## Training
+
+For training a model, you can use the following code snippet (remember that the dataset should be specified in the configuration file):
+
+```python
+from laneatt import LaneATT
+
+import os
+
+
+CONFIG_TO_LOAD = 'laneatt.yaml' # Configuration file name to load
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), CONFIG_TO_LOAD) # Configuration file path (In this case, the configuration file is in the same directory as the script)
+if __name__ == '__main__':
+    laneatt = LaneATT(config=CONFIG_PATH) # Creates the model based on a configuration file
+    laneatt.train_model() # Train the model
+```
+
+The dataset should be structured as follows:
+
+```
+dataset/
+├── train/
+│   ├── clips/
+│   │   ├── 0001.png
+│   │   ├── 0002.png
+│   │   └── ...
+│   └── labels.json
+├── val/
+│   ├── clips/
+│   │   ├── 0001.png
+│   │   ├── 0002.png
+│   │   └── ...
+│   └── labels.json
+└── test/
+    ├── clips/
+    │   ├── 0001.png
+    │   ├── 0002.png
+    │   └── ...
+    └── labels.json
+```
+
 
 **Citation**
 ------------
