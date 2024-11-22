@@ -6,13 +6,15 @@ import time
 import numpy as np
 
 MODEL_TO_LOAD = 'laneatt_100.pt' # Model name to load
-MODEL_PATH = os.path.join(os.path.dirname(__file__), MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
-    
+CONFIG_TO_LOAD = 'laneatt.yaml' # Configuration file name to load
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'checkpoints', MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'configs', CONFIG_TO_LOAD) # Configuration file path (In this case, the configuration file is in the same directory as the script)
+
 if __name__ == '__main__':
-    laneatt = LaneATT('laneatt.yaml') # Creates the model based on a configuration file
+    laneatt = LaneATT(CONFIG_PATH) # Creates the model based on a configuration file
     laneatt.load(MODEL_PATH) # Load the model weights
     laneatt.eval() # Set the model to evaluation mode
-    
+
     cap = cv2.VideoCapture(0) # Open the camera
     while True:
         ret, frame = cap.read() # Read a frame from the camera
@@ -28,6 +30,7 @@ if __name__ == '__main__':
             if cv2.waitKey(1) == ord('q'):
                 break
         else:
+            # If the frame cannot be read, break the loop
             print("Cannot receive frame")
             break
 

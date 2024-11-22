@@ -82,10 +82,12 @@ import os
 import numpy as np
 
 MODEL_TO_LOAD = 'laneatt_100.pt' # Model name to load
+CONFIG_TO_LOAD = 'laneatt.yaml' # Configuration file name to load
 MODEL_PATH = os.path.join(os.path.dirname(__file__), MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), CONFIG_TO_LOAD) # Configuration file path (In this case, the configuration file is in the same directory as the script)
 
 if __name__ == '__main__':
-    laneatt = LaneATT('laneatt.yaml') # Creates the model based on a configuration file
+    laneatt = LaneATT(CONFIG_PATH) # Creates the model based on a configuration file
     laneatt.load(MODEL_PATH) # Load the model weights
     laneatt.eval() # Set the model to evaluation mode
 
@@ -108,6 +110,82 @@ if __name__ == '__main__':
 
     cap.release() # Release the camera
     cv2.destroyAllWindows() # Close the window
+```
+
+But before running, you need to create a configuration file, `laneatt.yaml`, with the following content:
+
+```yaml
+# Backbone for the model
+backbone: resnet18 
+
+# Feature Volume Channels
+feature_volume_channels: 64
+
+# Set the Anchor Steps for the Anchor Proposals (This means the number of vertical and horizontal starting points for the anchor proposals) ### You might not want to change this
+anchor_discretization:
+  y: 72
+  x: 128
+
+# Image Dimensions for the model (This is the input image size for the model) ### You might not want to change this
+image_size:
+  width: 640
+  height: 360
+
+# Dataset Image Dimensions (This is the image size in the dataset) This size is scaled to the image_size above before being fed to the model
+dataset_image_size:
+  width: 1280
+  height: 720
+
+# Angles for the Anchor Proposals (Sames as used in LineCNN) ### You might not want to change this
+anchor_angles:
+  left: [72., 60., 49., 39., 30., 22.]
+  right: [108., 120., 131., 141., 150., 158.]
+  bottom: [165., 150., 141., 131., 120., 108., 100., 90., 80., 72., 60., 49., 39., 30., 15.]
+
+# Optimizer for training the model ### You might not want to change this
+optimizer:
+  name: Adam
+  parameters:
+    lr: 0.0001
+    weight_decay: 0.0001
+
+# Scheduler for training the model ### You might not want to change this
+lr_scheduler:
+  name: CosineAnnealingLR
+  parameters:
+    T_max: 166650
+
+# Positive Threshold is the confidence threshold for the model to consider a detection as true
+positive_threshold: 0.5
+
+# Epochs for training the model
+epochs: 100
+
+# Batch Size for training the model
+batch_size: 8
+
+# Model Checkpoint Directory (Where the model checkpoints are saved)
+checkpoints_dir: "checkpoints"
+
+# Model Outputs Directory (Where the model outputs are saved) ### The outputs are the model training metrics and its plots
+outputs_dir: "outputs"
+
+# Model Checkpoint Interval (in epochs) ### The interval at which the model checkpoints are saved
+model_checkpoint_interval: 5
+
+# Logs Path (Where the model logs are saved)
+logs_dir: "logs"
+
+# Dataset settings for the model (The path where each split of the dataset is located)
+dataset:
+  train:
+    root: "dataset_generator/greenhouse_train/"
+
+  val:
+    root: "dataset_generator/greenhouse_val/"
+
+  test:
+    root: "dataset_generator/greenhouse_test/"
 ```
 
 **Citation**
