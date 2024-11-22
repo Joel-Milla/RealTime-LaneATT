@@ -209,6 +209,20 @@ class LaneATT(nn.Module):
 
         return reg_proposals
     
+    def postprocess(self, output:torch.Tensor) -> torch.Tensor:
+        """
+            Postprocess the regression proposals
+
+            Args:
+                output (torch.Tensor): Regression proposals
+
+            Returns:
+                torch.Tensor: Good proposals
+        """
+        # Filter proposals with confidence below the threshold
+        good_proposals = output[output[:, 1] > self.__positive_threshold]
+        return good_proposals
+    
     def nms(self, output:torch.Tensor, nms_threshold:float=40.0) -> torch.Tensor:
         """
             Apply non-maximum suppression to the proposals

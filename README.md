@@ -12,6 +12,7 @@ A Real Time approach to Lane Detection for greenhouse environments based on the 
 * [Key Features](#key-features)
 * [Model Architecture](#model-architecture)
 * [Training and Evaluation](#training-and-evaluation)
+* [Metrics](#metrics)
 * [Code and Usage](#code-and-usage)
 * [Citation](#citation)
 
@@ -45,7 +46,17 @@ This design choice has several key benefits:
 **Training and Evaluation**
 ---------------------------
 
-We have trained `Realtime-LaneATT` on a custom dataset of annotated images, with a total of 2500 samples for training and validation. Our model has achieved state-of-the-art results in terms of accuracy and speed, outperforming other popular greenhouse line delimitation methods.
+We have trained `Realtime-LaneATT` on a custom dataset of annotated images, with a total of 2500 samples during 100 epochs. Our model has achieved state-of-the-art results in terms of accuracy and speed, outperforming other popular greenhouse line delimitation methods.
+
+| **Metric** | **Value** |
+| --- | --- |
+| Precision | 0.94 (94%) |
+| Recall    | 0.89 (89%) |
+| F1 Score  | 0.92 (92%) |
+| Accuracy  | 0.91 (91%) |
+
+**Metrics**
+---
 
 ![model_evaluation](assets/metrics.png)
 
@@ -53,6 +64,10 @@ We have trained `Realtime-LaneATT` on a custom dataset of annotated images, with
 -----------------
 
 * This repository contains the source code for the `Realtime-LaneATT` model, but the installation method is through the `pip` package manager. To install the package, run the following command:
+
+```bash
+pip install laneatt
+```
 
 **Citation**
 ------------
