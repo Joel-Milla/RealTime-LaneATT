@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
         if ret:
             start = time.time() # Start the timer
-            output = laneatt.cv2_inferece(frame) # Perform inference on the frame
+            output = laneatt.cv2_inference(frame) # Perform inference on the frame
             # output = laneatt.nms(output) This filter runs on the CPU and is slow, for real-time applications, it is recommended to implement it on the GPU
             print('Inference time: ', time.time() - start) # Print the inference time
             laneatt.plot(output, frame) # Plot the lanes onto the frame and show it

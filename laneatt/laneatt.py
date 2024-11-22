@@ -210,7 +210,7 @@ class LaneATT(nn.Module):
 
         return reg_proposals
     
-    def cv2_inferece(self, frame:np.ndarray) -> torch.Tensor:
+    def cv2_inference(self, frame:np.ndarray) -> torch.Tensor:
         """
             Inference of the model using OpenCV frame
 
