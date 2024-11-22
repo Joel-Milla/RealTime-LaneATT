@@ -47,6 +47,8 @@ This design choice has several key benefits:
 
 We have trained `Realtime-LaneATT` on a custom dataset of annotated images, with a total of 2500 samples for training and validation. Our model has achieved state-of-the-art results in terms of accuracy and speed, outperforming other popular greenhouse line delimitation methods.
 
+![model_evaluation](assets/metrics.png)
+
 **Code and Usage**
 -----------------
 
