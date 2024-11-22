@@ -183,13 +183,13 @@ logs_dir: "logs"
 # Dataset settings for the model (The path where each split of the dataset is located)
 dataset:
   train:
-    root: "dataset_generator/greenhouse_train/"
+    root: "dataset/train/"
 
   val:
-    root: "dataset_generator/greenhouse_val/"
+    root: "dataset/val/"
 
   test:
-    root: "dataset_generator/greenhouse_test/"
+    root: "dataset/test/"
 ```
 
 You will also need a model checkpoint file. You can use our pretrained model, `laneatt_100.pt`, which can be downloaded from [here](https://github.com/PaoloReyes/RealTime-LaneATT/tree/main/checkpoints).

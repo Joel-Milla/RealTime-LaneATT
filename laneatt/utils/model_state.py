@@ -39,6 +39,8 @@ def save_train_state(epoch, model, optimizer, scheduler, checkpoints_dir):
             optimizer: The optimizer to be saved.
             scheduler: The scheduler to be saved.
     """
+    if not os.path.exists(checkpoints_dir):
+        os.makedirs(checkpoints_dir)
     
     train_state = {
         'epoch': epoch,
@@ -55,6 +57,7 @@ def get_last_checkpoint(checkpoints_dir):
         Returns:
             The epoch of the last checkpoint.
     """
+    if not os.path.exists(checkpoints_dir): raise FileNotFoundError('Checkpoints directory not found.')
     
     # Generate the pattern to match the checkpoint files and a list of all the checkpoint files
     pattern = re.compile('laneatt_(\\d+).pt')
@@ -76,6 +79,8 @@ def save_data(data, data_dir, data_name):
             data_dir: The directory to save the data.
             data_name: The name of the data file.
     """
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
     
     if not os.path.exists(os.path.join(data_dir, data_name)):
         with open(os.path.join(data_dir, data_name), 'wb') as f:
@@ -94,7 +99,9 @@ def remove_data(data_dir):
         Args:
             data_dir: The directory to remove the data.
     """
-    
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+
     elements = os.listdir(data_dir)
     for element in elements:
         os.remove(os.path.join(data_dir, element) if os.path.isfile(os.path.join(data_dir, element)) else None)
@@ -106,6 +113,7 @@ def plot_from_data(data_dir):
         Args:
             data_dir: The directory to plot the data.
     """
+    if not os.path.exists(data_dir): raise FileNotFoundError('Data directory not found.')
     
     data_files = [f for f in os.listdir(data_dir) if f.endswith('.pkl')]
 
