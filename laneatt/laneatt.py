@@ -1,5 +1,6 @@
 from . import utils
 from torchvision import models
+from torchvision.transforms import ToTensor
 from tqdm import tqdm, trange
 
 import cv2
@@ -209,6 +210,22 @@ class LaneATT(nn.Module):
 
         return reg_proposals
     
+    def cv2_inferece(self, frame:np.ndarray) -> torch.Tensor:
+        """
+            Inference of the model using OpenCV frame
+
+            Args:
+                image (np.ndarray): Image
+            
+            Returns:
+                torch.Tensor: Regression proposals
+        """
+        frame = cv2.resize(frame, (self.img_w, self.img_h))
+        img_tensor = ToTensor()((frame.copy()/255.0).astype(np.float32)).permute(0, 1, 2)
+        output = self.forward(img_tensor.unsqueeze(0)).squeeze(0)
+
+        return self.postprocess(output)
+
     def postprocess(self, output:torch.Tensor) -> torch.Tensor:
         """
             Postprocess the regression proposals

@@ -1,41 +1,28 @@
 from laneatt import LaneATT
-from torchvision.transforms import ToTensor
 
 import cv2
 import os
 import time
-
 import numpy as np
 
-MODEL_TO_LOAD = 'laneatt_100.pt'
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'checkpoints', MODEL_TO_LOAD)
+MODEL_TO_LOAD = 'laneatt_100.pt' # Model name to load
+MODEL_PATH = os.path.join(os.path.dirname(__file__), MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
     
 if __name__ == '__main__':
-    laneatt = LaneATT(config=os.path.join(os.path.dirname(__file__), 'configs', 'laneatt.yaml'))
-    laneatt.load(MODEL_PATH)
-    laneatt.eval()
+    laneatt = LaneATT('laneatt.yaml') # Creates the model based on a configuration file
+    laneatt.load(MODEL_PATH) # Load the model weights
+    laneatt.eval() # Set the model to evaluation mode
     
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0) # Open the camera
     while True:
-        ret, frame = cap.read()
+        ret, frame = cap.read() # Read a frame from the camera
 
         if ret:
-            # Resize frame to the model's trained size
-            frame = cv2.resize(frame, (laneatt.img_w, laneatt.img_h))
-            # Convert frame to tensor and normalize
-            img_tensor = ToTensor()((frame.copy()/255.0).astype(np.float32)).permute(0, 1, 2)
-
-            # Predict
-            start = time.time()
-            output = laneatt(img_tensor.unsqueeze(0)).squeeze(0)
+            start = time.time() # Start the timer
+            output = laneatt.cv2_inferece(frame) # Perform inference on the frame
             # output = laneatt.nms(output) This filter runs on the CPU and is slow, for real-time applications, it is recommended to implement it on the GPU
-            
-            # This postprocess function is faster than the NMS filter but gives multiple lanes that should not be a problem for navigation tasks
-            output = laneatt.postprocess(output)
-            print('Inference time: ', time.time() - start)
-
-            # Plot the lanes above the threshold onto the frame and show it
-            laneatt.plot(output, frame)
+            print('Inference time: ', time.time() - start) # Print the inference time
+            laneatt.plot(output, frame) # Plot the lanes onto the frame and show it
 
             # Wait for 'q' key to quit
             if cv2.waitKey(1) == ord('q'):
@@ -44,5 +31,5 @@ if __name__ == '__main__':
             print("Cannot receive frame")
             break
 
-    cap.release()
-    cv2.destroyAllWindows()
+    cap.release() # Release the camera
+    cv2.destroyAllWindows() # Close the window

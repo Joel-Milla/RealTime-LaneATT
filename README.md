@@ -47,6 +47,7 @@ This design choice has several key benefits:
 ---------------------------
 
 We have trained `Realtime-LaneATT` on a custom dataset of annotated images, with a total of 2500 samples during 100 epochs. Our model has achieved state-of-the-art results in terms of accuracy and speed, outperforming other popular greenhouse line delimitation methods.
+The model was tested on a NVIDIA GeForce RTX 3070 ti laptop GPU, with an average inference time of 11ms per image.
 
 | **Metric** | **Value** |
 | --- | --- |
@@ -54,6 +55,8 @@ We have trained `Realtime-LaneATT` on a custom dataset of annotated images, with
 | Recall    | 0.89 (89%) |
 | F1 Score  | 0.92 (92%) |
 | Accuracy  | 0.91 (91%) |
+| Inference Time | 11ms  |
+
 
 **Metrics**
 ---
@@ -67,6 +70,44 @@ We have trained `Realtime-LaneATT` on a custom dataset of annotated images, with
 
 ```bash
 pip install laneatt
+```
+
+To perform real-time inference on a video stream, you can use the following code snippet:
+
+```python
+from laneatt import LaneATT
+
+import cv2
+import os
+import numpy as np
+
+MODEL_TO_LOAD = 'laneatt_100.pt' # Model name to load
+MODEL_PATH = os.path.join(os.path.dirname(__file__), MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
+
+if __name__ == '__main__':
+    laneatt = LaneATT('laneatt.yaml') # Creates the model based on a configuration file
+    laneatt.load(MODEL_PATH) # Load the model weights
+    laneatt.eval() # Set the model to evaluation mode
+
+    cap = cv2.VideoCapture(0) # Open the camera
+    while True:
+        ret, frame = cap.read() # Read a frame from the camera
+
+        if ret:
+            output = laneatt.cv2_inference(frame) # Perform inference on the frame
+            # output = laneatt.nms(output) This filter runs on the CPU and is slow, for real-time applications, it is recommended to implement it on the GPU
+            laneatt.plot(output, frame) # Plot the lanes onto the frame and show it
+
+            # Wait for 'q' key to quit
+            if cv2.waitKey(1) == ord('q'):
+                break
+        else:
+            # If the frame cannot be read, break the loop
+            print("Cannot receive frame")
+            break
+
+    cap.release() # Release the camera
+    cv2.destroyAllWindows() # Close the window
 ```
 
 **Citation**
