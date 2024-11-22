@@ -8,7 +8,7 @@ import json
 
 import numpy as np
 
-MODEL_TO_LOAD = 'laneatt_300.pt'
+MODEL_TO_LOAD = 'laneatt_35.pt'
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'checkpoints', MODEL_TO_LOAD)
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'configs', 'laneatt.yaml')
     

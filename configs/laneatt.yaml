@@ -37,14 +37,20 @@ lr_scheduler:
   parameters:
     T_max: 166650
 
+# Positive Threshold
+positive_threshold: 0.5
+
 # Epochs
-epochs: 300
+epochs: 100
 
 # Batch Size
 batch_size: 8
 
-# Model Checkpoint Path
+# Model Checkpoint Directory
 checkpoints_dir: "checkpoints"
+
+# Model Outputs Directory
+outputs_dir: "outputs"
 
 # Model Checkpoint Interval (in epochs)
 model_checkpoint_interval: 5

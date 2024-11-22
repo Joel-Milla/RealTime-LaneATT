@@ -1,6 +1,8 @@
+import matplotlib.pyplot as plt
 import os
 import re
 import torch
+import pickle
 
 def load_last_train_state(model, optimizer, scheduler, checkpoints_dir):
     """
@@ -64,3 +66,93 @@ def get_last_checkpoint(checkpoints_dir):
     epoch = latest_checkpoint_path.split('_')[1].rstrip('.pt')
 
     return latest_checkpoint_path, int(epoch)
+
+def save_data(data, data_dir, data_name):
+    """
+        Save the data to the data directory.
+
+        Args:
+            data: The data to be saved.
+            data_dir: The directory to save the data.
+            data_name: The name of the data file.
+    """
+    
+    if not os.path.exists(os.path.join(data_dir, data_name)):
+        with open(os.path.join(data_dir, data_name), 'wb') as f:
+            pickle.dump([data], f)
+    else:
+        with open(os.path.join(data_dir, data_name), 'rb') as f:
+            read_data = pickle.load(f)
+        read_data.append(data)
+        with open(os.path.join(data_dir, data_name), 'wb') as f:
+            pickle.dump(read_data, f)
+
+def remove_data(data_dir):
+    """
+        Remove the data from the data directory.
+
+        Args:
+            data_dir: The directory to remove the data.
+    """
+    
+    elements = os.listdir(data_dir)
+    for element in elements:
+        os.remove(os.path.join(data_dir, element) if os.path.isfile(os.path.join(data_dir, element)) else None)
+
+def plot_from_data(data_dir):
+    """
+        Plot the data from the data directory.
+
+        Args:
+            data_dir: The directory to plot the data.
+    """
+    
+    data_files = [f for f in os.listdir(data_dir) if f.endswith('.pkl')]
+
+    train_loss, train_cls_loss, train_reg_loss = [], [], []
+    eval_loss, eval_cls_loss, eval_reg_loss, precision, recall, f1, accuracy = [], [], [], [], [], [], []
+    for data_file in data_files:
+        data_type = data_file.split('_')[0]
+
+        with open(os.path.join(data_dir, data_file), 'rb') as f:
+            data = pickle.load(f)
+
+        if data_type == 'train':
+            for entry in data:
+                train_loss.append(entry['loss'])
+                train_cls_loss.append(entry['cls_loss'])
+                train_reg_loss.append(entry['reg_loss'])
+        elif data_type == 'eval':
+            for entry in data:
+                eval_loss.append(entry['loss'])
+                eval_cls_loss.append(entry['cls_loss'])
+                eval_reg_loss.append(entry['reg_loss'])
+                precision.append(entry['precision'])
+                recall.append(entry['recall'])
+                f1.append(entry['f1_score'])
+                accuracy.append(entry['accuracy'])
+        
+    # Plot the data
+    ax, fig = plt.subplots(2, 5, figsize=(20, 10))
+    fig[0, 0].plot(train_loss)
+    fig[0, 0].set_title('Train Loss')
+    fig[0, 1].plot(train_cls_loss)
+    fig[0, 1].set_title('Train Classification Loss')
+    fig[0, 2].plot(train_reg_loss)
+    fig[0, 2].set_title('Train Regression Loss')
+    fig[1, 0].plot(eval_loss)
+    fig[1, 0].set_title('Eval Loss')
+    fig[1, 1].plot(eval_cls_loss)
+    fig[1, 1].set_title('Eval Classification Loss')
+    fig[1, 2].plot(eval_reg_loss)
+    fig[1, 2].set_title('Eval Regression Loss')
+    fig[0, 3].plot(precision)
+    fig[0, 3].set_title('Precision')
+    fig[0, 4].plot(recall)
+    fig[0, 4].set_title('Recall')
+    fig[1, 3].plot(f1)
+    fig[1, 3].set_title('F1 Score')
+    fig[1, 4].plot(accuracy)
+    fig[1, 4].set_title('Accuracy')
+
+    plt.savefig(os.path.join(data_dir, f'metrics.png'))
