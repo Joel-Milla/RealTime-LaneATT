@@ -1,39 +1,23 @@
 from laneatt import LaneATT
-from torchvision.transforms import ToTensor
 
 import cv2
 import os
-import yaml
-import json
 
-import numpy as np
+MODEL_TO_LOAD = 'laneatt_100.pt' # Model name to load
+CONFIG_TO_LOAD = 'laneatt.yaml' # Configuration file name to load
+IMG_TO_LOAD = 'test.png' # Image name to load
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'checkpoints', MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'configs', CONFIG_TO_LOAD) # Configuration file path (In this case, the configuration file is in the same directory as the script)
+IMG_PATH = os.path.join(os.path.dirname(__file__), IMG_TO_LOAD) # Image path (In this case, the image is in the same directory as the script)
 
-MODEL_TO_LOAD = 'laneatt_35.pt'
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'checkpoints', MODEL_TO_LOAD)
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'configs', 'laneatt.yaml')
-    
 if __name__ == '__main__':
-    laneatt = LaneATT(config=os.path.join(os.path.dirname(__file__), 'configs', 'laneatt.yaml'))
-    laneatt.load(MODEL_PATH)
-    laneatt.eval()
-    
-    with open(CONFIG_PATH, 'r') as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
+    laneatt = LaneATT(CONFIG_PATH) # Creates the model based on a configuration file
+    laneatt.load(MODEL_PATH) # Load the model weights
+    laneatt.eval() # Set the model to evaluation mode
 
-    root = config['dataset']['test']['root']
-
-    json_files = os.listdir(root)
-    json_files = [f for f in json_files if f.endswith('.json')]
-
-    for j in json_files:
-        with open(os.path.join(root, j), 'r') as f:
-            for line in f:
-                line = json.loads(line)
-                img_path = os.path.join(root, line['raw_file'])
-                img = cv2.imread(img_path)
-                img = cv2.resize(img, (laneatt.img_w, laneatt.img_h))
-                img_tensor = ToTensor()((img.copy()/255.0).astype(np.float32)).permute(0, 1, 2)
-                output = laneatt(img_tensor.unsqueeze(0)).squeeze(0)
-                output = laneatt.nms(output, nms_threshold=50)
-                laneatt.plot(output, img)
-                cv2.waitKey(0)
+    img = cv2.imread(IMG_PATH) # Read the image
+    output = laneatt.cv2_inference(img) # Perform inference on the image
+    # output = laneatt.nms(output) This filter runs on the CPU and is slow, for real-time applications, it is recommended to implement it on the GPU
+    laneatt.plot(output, img) # Plot the lanes onto the image and show it
+    cv2.waitKey(0) # Wait for a key to close the window
+    cv2.destroyAllWindows() # Close the window

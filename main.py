@@ -3,7 +3,6 @@ from laneatt import LaneATT
 import cv2
 import os
 import time
-import numpy as np
 
 MODEL_TO_LOAD = 'laneatt_100.pt' # Model name to load
 CONFIG_TO_LOAD = 'laneatt.yaml' # Configuration file name to load
