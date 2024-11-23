@@ -20,7 +20,6 @@ def load_last_train_state(model, optimizer, scheduler, checkpoints_dir):
             optimizer: The optimizer loaded from the last checkpoint.
             scheduler: The scheduler loaded from the last checkpoint.
     """
-    
     train_state_path, epoch = get_last_checkpoint(checkpoints_dir)
     train_state = torch.load(os.path.join(checkpoints_dir, train_state_path), weights_only=True)
     model.load_state_dict(train_state['model'])
