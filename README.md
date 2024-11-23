@@ -68,7 +68,7 @@ The model was tested on a NVIDIA GeForce RTX 3070 ti laptop GPU, with an average
 
 * This repository contains the source code for the `Realtime-LaneATT` model, but the installation method is through the `pip` package manager. To install the package, run the following command:
 
-## installation
+## Installation
 
 ```bash
 pip install laneatt
