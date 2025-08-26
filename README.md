@@ -194,13 +194,13 @@ dataset:
 You will also need a model checkpoint file. You can use our pretrained model, `laneatt_100.pt`, which can be downloaded from [here](https://github.com/PaoloReyes/RealTime-LaneATT/tree/main/checkpoints).
 
 Alternatively, you can initialize Git LFS (Large File Storage) and pull the model.
-'''
-# Initialize git-lfs
+``` bash
+# Initialize git lfs
 git lfs install
 
 # Pull the model
 git lfs pull
-'''
+```
 
 ## Training
 
