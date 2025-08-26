@@ -8,4 +8,8 @@
 /dist
 /laneatt.egg-info
 setup.py
-setup.cfg
+setup.cfg.idea/
+*.pyc
+__pycache__/
+*.egg-info/
+.idea/**

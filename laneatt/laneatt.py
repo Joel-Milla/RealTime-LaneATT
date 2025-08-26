@@ -550,7 +550,7 @@ class LaneATT(nn.Module):
             Args:
                 checkpoint (str): Checkpoint file
         """
-        train_state = torch.load(checkpoint, weights_only=True)
+        train_state = torch.load(checkpoint, weights_only=False)
         self.load_state_dict(train_state['model'])
 
     def __cut_anchor_features(self, feature_volumes:torch.Tensor) -> torch.Tensor:
