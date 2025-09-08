@@ -3,7 +3,6 @@ import cv2
 import os
 import time
 import numpy as np
-from laneatt import LaneATT
 import argparse
 
 GLOBAL_WIDTH = 1280
@@ -34,10 +33,6 @@ if __name__ == '__main__':
     CONFIG_TO_LOAD = 'laneatt.yaml' # Configuration file name to load
     MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'checkpoints', MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
     CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'configs', CONFIG_TO_LOAD) # Configuration file path (In this case, the configuration file is in the same directory as the script)
-
-    laneatt = LaneATT(CONFIG_PATH)  # Creates the model based on a configuration file
-    laneatt.load(MODEL_PATH)  # Load the model weights
-    laneatt.eval()  # Set the model to evaluation mode
 
     # Configure depth and color streams
     pipeline = rs.pipeline()  # object that manages camera streaming
@@ -75,15 +70,7 @@ if __name__ == '__main__':
 
         # Convert images to numpy arrays that opencv can understand
         color_image = np.asanyarray(color_frame.get_data())
-
-        start = time.time() # Start the timer
-        output = laneatt.cv2_inference(color_image) # Perform inference on the frame
-        # output = laneatt.nms(output) This filter runs on the CPU and is slow, for real-time applications, it is recommended to implement it on the GPU
-        print('Inference time: ', time.time() - start) # Print the inference time
-
-        output_img = color_image.copy()  # Make a copy first
-        laneatt.plot(output, output_img) # Plot the lanes onto the frame and show it
-        video_writer.write(output_img)
+        video_writer.write(color_image)
 
         # Wait for 'q' key to quit
         if cv2.waitKey(1) == ord('q'):
