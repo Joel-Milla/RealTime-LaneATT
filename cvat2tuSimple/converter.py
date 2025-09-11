@@ -17,9 +17,6 @@ class Point:
 
 class Polyline:
     def __init__(self, points_string):
-        if not points_string:
-            return
-
         self.points_array = []
         self.miny = np.inf
         self.maxy = 0
@@ -51,7 +48,7 @@ class Polyline:
         if len(self.points_array) < 2:
             return lambda y: self.points_array[0].x if self.points_array else 0
 
-            # Sort points by y-coordinate (top to bottom)
+        # Sort points by y-coordinate (top to bottom)
         sorted_points = sorted(self.points_array, key=lambda p: p.y)
         y_coords = [p.y for p in sorted_points]
         x_coords = [p.x for p in sorted_points]
@@ -141,18 +138,19 @@ if __name__ == "__main__":
             x_coords = polyline_obj.get_x_coordinates(H_SAMPLES)
             lanes.append(x_coords)
 
-            if len(lanes) > 2:
-                throw_error("error! wrong lane")
         #     for point in polyline_obj.points_array:
         #         cv2.circle(img, point.obtain_tuple_point(), 5, (255,0,0), -1)
             valid_points = [[x, y] for x, y in zip(x_coords, H_SAMPLES) if x != -2]
             valid_points = np.array(valid_points, dtype=np.int32)
             cv2.polylines(img, [valid_points], False, (255, 255, 255), 3)
 
+        if len(lanes) != 2:
+            raise ValueError(f"Expected exactly 2 lanes, but found {len(lanes)}")
+
         json_output = {
             "lanes": lanes,
             "h_samples": H_SAMPLES,
-            "raw_file": image['name']
+            "raw_file": f'images/{image['name']}'
         }
 
         all_labels.append(json_output)
