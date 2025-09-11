@@ -13,3 +13,8 @@ setup.cfg.idea/
 __pycache__/
 *.egg-info/
 .idea/**
+**/*.png
+**/**/*.avi
+*.avi
+**/photos/**
+**/*.mp4

@@ -71,12 +71,12 @@ def get_last_checkpoint(checkpoints_dir):
 
 def save_data(data, data_dir, data_name):
     """
-        Save the data to the data directory.
+        Save the data1 to the data1 directory.
 
         Args:
-            data: The data to be saved.
-            data_dir: The directory to save the data.
-            data_name: The name of the data file.
+            data: The data1 to be saved.
+            data_dir: The directory to save the data1.
+            data_name: The name of the data1 file.
     """
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
@@ -93,10 +93,10 @@ def save_data(data, data_dir, data_name):
 
 def remove_data(data_dir):
     """
-        Remove the data from the data directory.
+        Remove the data1 from the data1 directory.
 
         Args:
-            data_dir: The directory to remove the data.
+            data_dir: The directory to remove the data1.
     """
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
@@ -107,10 +107,10 @@ def remove_data(data_dir):
 
 def plot_from_data(data_dir):
     """
-        Plot the data from the data directory.
+        Plot the data1 from the data1 directory.
 
         Args:
-            data_dir: The directory to plot the data.
+            data_dir: The directory to plot the data1.
     """
     if not os.path.exists(data_dir): raise FileNotFoundError('Data directory not found.')
     
@@ -139,7 +139,7 @@ def plot_from_data(data_dir):
                 f1.append(entry['f1_score'])
                 accuracy.append(entry['accuracy'])
         
-    # Plot the data
+    # Plot the data1
     ax, fig = plt.subplots(2, 5, figsize=(20, 10))
     fig[0, 0].plot(train_loss)
     fig[0, 0].set_title('Train Loss')

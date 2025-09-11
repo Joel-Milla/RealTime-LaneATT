@@ -122,7 +122,7 @@ class LaneATT(nn.Module):
         # Set pretrained backbone according to pytorch requirements without the average pooling and fully connected layer
         self.__backbone = nn.Sequential(*list(models.__dict__[value](weights=f'{value.replace("resnet", "ResNet")}_Weights.DEFAULT').children())[:-2],)
 
-        # Runs backbone (on cpu) once to get output data 
+        # Runs backbone (on cpu) once to get output data1
         backbone_dimensions = self.__backbone(torch.randn(1, 3, self.__img_h, self.__img_w)).shape
 
         # Extracts feature volume height and width
@@ -430,7 +430,7 @@ class LaneATT(nn.Module):
             self.logger.debug('Epoch [%d/%d] finished.', epoch, epochs)
             self.logger.info('Training Epoch finished. Loss: {:.5f} - Cls Loss: {:.5f} - Reg Loss: {:.5f}'.format(accumulator['loss'], accumulator['cls_loss'], accumulator['reg_loss']))
 
-            # Save the data in a pickle file
+            # Save the data1 in a pickle file
             utils.save_data(accumulator, self.__laneatt_config['outputs_dir'], 'train_data.pkl')
 
             self.eval_model()

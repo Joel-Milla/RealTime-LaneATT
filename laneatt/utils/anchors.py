@@ -136,7 +136,7 @@ def generate_anchor(start:tuple, angle:float, y_discretization:int, fv_size:int,
 
     # Extract image width and height
     img_h, img_w = img_size
-    # Extract feature volume data
+    # Extract feature volume data1
     _, fv_h, fv_w = fv_size
     # Convert angle to radians
     angle = angle * np.pi / 180.

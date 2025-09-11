@@ -1,12 +1,12 @@
 import pyrealsense2 as rs
 import cv2
 import os
-import time
 import numpy as np
 import argparse
 
 GLOBAL_WIDTH = 1280
 GLOBAL_HEIGHT = 720
+FPS = 15
 
 def create_video_writer(file_name):
     video_name = file_name
@@ -17,8 +17,7 @@ def create_video_writer(file_name):
 
     # Video properties
     size = (GLOBAL_WIDTH, GLOBAL_HEIGHT) #widthxheight
-    fps = 30.0
-    new_video_writer = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*"MJPG"), fps, size)
+    new_video_writer = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*"MJPG"), FPS, size)
     return new_video_writer
 
 if __name__ == '__main__':
@@ -28,11 +27,6 @@ if __name__ == '__main__':
                     help="name of the video to save")
     args = vars(ap.parse_args())
     video_writer = create_video_writer(args["name"])
-
-    MODEL_TO_LOAD = 'laneatt_100.pt' # Model name to load
-    CONFIG_TO_LOAD = 'laneatt.yaml' # Configuration file name to load
-    MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'checkpoints', MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
-    CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'configs', CONFIG_TO_LOAD) # Configuration file path (In this case, the configuration file is in the same directory as the script)
 
     # Configure depth and color streams
     pipeline = rs.pipeline()  # object that manages camera streaming
@@ -56,7 +50,7 @@ if __name__ == '__main__':
         exit(0)
 
     # Color camera, 8bit bgr, 30fps
-    config.enable_stream(rs.stream.color, GLOBAL_WIDTH, GLOBAL_HEIGHT, rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.color, GLOBAL_WIDTH, GLOBAL_HEIGHT, rs.format.bgr8, FPS)
 
     # Using all the previous config, start streaming
     pipeline.start(config)
@@ -70,6 +64,7 @@ if __name__ == '__main__':
 
         # Convert images to numpy arrays that opencv can understand
         color_image = np.asanyarray(color_frame.get_data())
+        cv2.imshow("video", color_image)
         video_writer.write(color_image)
 
         # Wait for 'q' key to quit

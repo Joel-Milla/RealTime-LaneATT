@@ -73,7 +73,7 @@ class LaneDataset(Dataset):
                 lines = annotation_obj.readlines()
             # Iterate over the lines in the annotation file
             for line in lines:
-                # Load the JSON line data
+                # Load the JSON line data1
                 try:
                     data = json.loads(line)
                 except:

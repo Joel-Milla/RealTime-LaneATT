@@ -16,7 +16,7 @@ def one_hot(labels: torch.Tensor,
             labels (torch.Tensor) : tensor with labels of shape (n_positve+n_negative) indicating the class with an index [0, 1].
             num_classes (int): number of classes in labels.
             device (Optional[torch.device]): the desired device of the returned tensor.
-            dtype (Optional[torch.dtype]): the desired data type of the returned tensor.
+            dtype (Optional[torch.dtype]): the desired data1 type of the returned tensor.
             eps (Optional[float]): small value to avoid division by zero.
 
         Returns:

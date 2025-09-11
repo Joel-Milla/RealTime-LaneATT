@@ -37,7 +37,7 @@ if __name__ == '__main__':
         exit(0)
 
     # Color camera, 640x480, 8bit bgr, 30fps
-    config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 15)
 
     # Using all the previous config, start streaming
     pipeline.start(config)
