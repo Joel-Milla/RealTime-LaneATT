@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from numpy.f2py.auxfuncs import throw_error
 from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import interp1d
 import json
 import os
 
@@ -56,7 +57,9 @@ class Polyline:
 
         # Use light smoothing to handle annotation noise
         # s = number_of_points gives good balance between smoothness and accuracy
-        spline = UnivariateSpline(y_coords, x_coords, s=len(y_coords) * 5)
+        # spline = UnivariateSpline(y_coords, x_coords, s=len(y_coords) * 0.1)
+        spline = interp1d(y_coords, x_coords, kind='linear', fill_value='extrapolate')
+
         return lambda y: float(spline(y))
 
     def get_x_coordinates(self, h_samples):
@@ -115,7 +118,7 @@ def parse_images_from_xml(file_path):
 # Example usage
 if __name__ == "__main__":
     # Parse the XML file
-    MAIN_FOLDER = "test"
+    MAIN_FOLDER = "train2"
     H_SAMPLES = list(range(0, 720, 10))
     images = parse_images_from_xml(f'{MAIN_FOLDER}/annotations.xml')
 
@@ -127,7 +130,7 @@ if __name__ == "__main__":
         print(f"Image: {image['name']} ({image['width']}x{image['height']})")
         print(f"ID: {image['id']}")
 
-        img = cv2.imread(f"{MAIN_FOLDER}/images/{image['name']}")
+        img = cv2.imread(f"{MAIN_FOLDER}/clips/{image['name']}")
 
         for i, polyline in enumerate(image['polylines']):
             polyline_obj = polyline['object']
@@ -150,7 +153,7 @@ if __name__ == "__main__":
         json_output = {
             "lanes": lanes,
             "h_samples": H_SAMPLES,
-            "raw_file": f'images/{image['name']}'
+            "raw_file": f'clips/{image['name']}'
         }
 
         all_labels.append(json_output)

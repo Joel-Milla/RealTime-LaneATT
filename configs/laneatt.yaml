@@ -62,10 +62,10 @@ logs_dir: "logs"
 # Dataset settings for the model (The path where each split of the dataset is located)
 dataset:
   train:
-    root: "dataset_generator/greenhouse_train/"
+    root: "dataset_generator/train/"
 
   val:
-    root: "dataset_generator/greenhouse_val/"
+    root: "dataset_generator/val/"
 
   test:
-    root: "dataset_generator/greenhouse_test/"
+    root: "dataset_generator/test/"

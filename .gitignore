@@ -18,3 +18,7 @@ __pycache__/
 *.avi
 **/photos/**
 **/*.mp4
+**/*.avi
+cvat2tuSimple/test
+cvat2tuSimple/val*
+cvat2tuSimple/train

@@ -1,0 +1,163 @@
+[2025-09-12 22:10:10,587] [laneatt.utils.logger] [INFO] Starting training...
+[2025-09-12 22:10:10,589] [laneatt.utils.dataset] [INFO] Loading TuSimple annotations...
+[2025-09-12 22:10:10,788] [laneatt.utils.dataset] [INFO] 1151 annotations loaded, with a maximum of 2 lanes in an image.
+[2025-09-12 22:10:10,788] [laneatt.utils.dataset] [INFO] Transforming annotations to the model's target format...
+[2025-09-12 22:10:11,127] [laneatt.utils.dataset] [INFO] Annotations transformed.
+[2025-09-12 22:10:11,129] [laneatt.utils.logger] [INFO] Epoch [1/100] starting.
+[2025-09-12 22:10:12,444] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [0/144] - Loss: 16.82747 - cls_loss: 1.20911 - reg_loss: 4.73637 - batch_positives: 168.00000 - lr: 0.00010
+[2025-09-12 22:10:12,865] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [1/144] - Loss: 13.45061 - cls_loss: 0.86196 - reg_loss: 4.83103 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:13,262] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [2/144] - Loss: 8.03686 - cls_loss: 0.36459 - reg_loss: 4.39095 - batch_positives: 140.00000 - lr: 0.00010
+[2025-09-12 22:10:13,661] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [3/144] - Loss: 8.01876 - cls_loss: 0.35911 - reg_loss: 4.42767 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:14,072] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [4/144] - Loss: 8.47430 - cls_loss: 0.38161 - reg_loss: 4.65817 - batch_positives: 166.00000 - lr: 0.00010
+[2025-09-12 22:10:14,476] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [5/144] - Loss: 8.01896 - cls_loss: 0.38587 - reg_loss: 4.16026 - batch_positives: 153.00000 - lr: 0.00010
+[2025-09-12 22:10:14,873] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [6/144] - Loss: 6.53176 - cls_loss: 0.23345 - reg_loss: 4.19729 - batch_positives: 170.00000 - lr: 0.00010
+[2025-09-12 22:10:15,264] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [7/144] - Loss: 6.70113 - cls_loss: 0.25069 - reg_loss: 4.19426 - batch_positives: 174.00000 - lr: 0.00010
+[2025-09-12 22:10:15,653] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [8/144] - Loss: 6.22134 - cls_loss: 0.21209 - reg_loss: 4.10040 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:16,049] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [9/144] - Loss: 5.50403 - cls_loss: 0.16632 - reg_loss: 3.84087 - batch_positives: 154.00000 - lr: 0.00010
+[2025-09-12 22:10:16,444] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [10/144] - Loss: 6.81427 - cls_loss: 0.27774 - reg_loss: 4.03682 - batch_positives: 172.00000 - lr: 0.00010
+[2025-09-12 22:10:16,841] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [11/144] - Loss: 5.36555 - cls_loss: 0.15987 - reg_loss: 3.76680 - batch_positives: 152.00000 - lr: 0.00010
+[2025-09-12 22:10:17,240] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [12/144] - Loss: 6.59987 - cls_loss: 0.24578 - reg_loss: 4.14204 - batch_positives: 174.00000 - lr: 0.00010
+[2025-09-12 22:10:17,629] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [13/144] - Loss: 5.67171 - cls_loss: 0.18558 - reg_loss: 3.81591 - batch_positives: 176.00000 - lr: 0.00010
+[2025-09-12 22:10:18,022] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [14/144] - Loss: 5.02409 - cls_loss: 0.13115 - reg_loss: 3.71254 - batch_positives: 169.00000 - lr: 0.00010
+[2025-09-12 22:10:18,425] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [15/144] - Loss: 4.89539 - cls_loss: 0.12036 - reg_loss: 3.69179 - batch_positives: 159.00000 - lr: 0.00010
+[2025-09-12 22:10:18,814] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [16/144] - Loss: 5.31112 - cls_loss: 0.15359 - reg_loss: 3.77526 - batch_positives: 175.00000 - lr: 0.00010
+[2025-09-12 22:10:19,206] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [17/144] - Loss: 5.31283 - cls_loss: 0.17170 - reg_loss: 3.59582 - batch_positives: 170.00000 - lr: 0.00010
+[2025-09-12 22:10:19,607] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [18/144] - Loss: 5.50085 - cls_loss: 0.14890 - reg_loss: 4.01182 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:19,994] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [19/144] - Loss: 4.64415 - cls_loss: 0.13124 - reg_loss: 3.33179 - batch_positives: 155.00000 - lr: 0.00010
+[2025-09-12 22:10:20,393] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [20/144] - Loss: 5.12552 - cls_loss: 0.13711 - reg_loss: 3.75441 - batch_positives: 166.00000 - lr: 0.00010
+[2025-09-12 22:10:20,796] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [21/144] - Loss: 4.83951 - cls_loss: 0.11900 - reg_loss: 3.64949 - batch_positives: 176.00000 - lr: 0.00010
+[2025-09-12 22:10:21,185] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [22/144] - Loss: 4.60332 - cls_loss: 0.12349 - reg_loss: 3.36846 - batch_positives: 165.00000 - lr: 0.00010
+[2025-09-12 22:10:21,575] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [23/144] - Loss: 3.96411 - cls_loss: 0.08189 - reg_loss: 3.14524 - batch_positives: 157.00000 - lr: 0.00010
+[2025-09-12 22:10:21,973] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [24/144] - Loss: 4.91904 - cls_loss: 0.12643 - reg_loss: 3.65477 - batch_positives: 174.00000 - lr: 0.00010
+[2025-09-12 22:10:22,372] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [25/144] - Loss: 4.35697 - cls_loss: 0.10313 - reg_loss: 3.32570 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:22,777] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [26/144] - Loss: 4.80179 - cls_loss: 0.12430 - reg_loss: 3.55880 - batch_positives: 168.00000 - lr: 0.00010
+[2025-09-12 22:10:23,169] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [27/144] - Loss: 4.35995 - cls_loss: 0.10502 - reg_loss: 3.30979 - batch_positives: 179.00000 - lr: 0.00010
+[2025-09-12 22:10:23,572] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [28/144] - Loss: 4.04248 - cls_loss: 0.08813 - reg_loss: 3.16122 - batch_positives: 159.00000 - lr: 0.00010
+[2025-09-12 22:10:23,950] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [29/144] - Loss: 4.28793 - cls_loss: 0.10616 - reg_loss: 3.22628 - batch_positives: 152.00000 - lr: 0.00010
+[2025-09-12 22:10:24,345] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [30/144] - Loss: 4.01755 - cls_loss: 0.09038 - reg_loss: 3.11371 - batch_positives: 154.00000 - lr: 0.00010
+[2025-09-12 22:10:24,732] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [31/144] - Loss: 4.00509 - cls_loss: 0.08749 - reg_loss: 3.13022 - batch_positives: 173.00000 - lr: 0.00010
+[2025-09-12 22:10:25,130] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [32/144] - Loss: 3.90597 - cls_loss: 0.08710 - reg_loss: 3.03495 - batch_positives: 172.00000 - lr: 0.00010
+[2025-09-12 22:10:25,527] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [33/144] - Loss: 4.39972 - cls_loss: 0.12155 - reg_loss: 3.18417 - batch_positives: 162.00000 - lr: 0.00010
+[2025-09-12 22:10:25,946] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [34/144] - Loss: 3.70368 - cls_loss: 0.08083 - reg_loss: 2.89538 - batch_positives: 172.00000 - lr: 0.00010
+[2025-09-12 22:10:26,340] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [35/144] - Loss: 3.65026 - cls_loss: 0.09064 - reg_loss: 2.74388 - batch_positives: 161.00000 - lr: 0.00010
+[2025-09-12 22:10:26,748] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [36/144] - Loss: 3.90524 - cls_loss: 0.09012 - reg_loss: 3.00400 - batch_positives: 159.00000 - lr: 0.00010
+[2025-09-12 22:10:27,152] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [37/144] - Loss: 3.53197 - cls_loss: 0.07848 - reg_loss: 2.74718 - batch_positives: 163.00000 - lr: 0.00010
+[2025-09-12 22:10:27,555] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [38/144] - Loss: 3.72266 - cls_loss: 0.07175 - reg_loss: 3.00513 - batch_positives: 175.00000 - lr: 0.00010
+[2025-09-12 22:10:27,951] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [39/144] - Loss: 3.94266 - cls_loss: 0.08193 - reg_loss: 3.12339 - batch_positives: 164.00000 - lr: 0.00010
+[2025-09-12 22:10:28,337] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [40/144] - Loss: 4.30583 - cls_loss: 0.10422 - reg_loss: 3.26365 - batch_positives: 170.00000 - lr: 0.00010
+[2025-09-12 22:10:28,725] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [41/144] - Loss: 3.67516 - cls_loss: 0.07501 - reg_loss: 2.92509 - batch_positives: 158.00000 - lr: 0.00010
+[2025-09-12 22:10:29,113] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [42/144] - Loss: 3.74569 - cls_loss: 0.07977 - reg_loss: 2.94800 - batch_positives: 164.00000 - lr: 0.00010
+[2025-09-12 22:10:29,515] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [43/144] - Loss: 3.72843 - cls_loss: 0.08019 - reg_loss: 2.92656 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:29,911] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [44/144] - Loss: 3.63802 - cls_loss: 0.07442 - reg_loss: 2.89380 - batch_positives: 147.00000 - lr: 0.00010
+[2025-09-12 22:10:30,317] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [45/144] - Loss: 3.35721 - cls_loss: 0.06421 - reg_loss: 2.71515 - batch_positives: 175.00000 - lr: 0.00010
+[2025-09-12 22:10:30,757] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [46/144] - Loss: 3.63559 - cls_loss: 0.06549 - reg_loss: 2.98070 - batch_positives: 161.00000 - lr: 0.00010
+[2025-09-12 22:10:31,233] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [47/144] - Loss: 3.89861 - cls_loss: 0.09806 - reg_loss: 2.91799 - batch_positives: 178.00000 - lr: 0.00010
+[2025-09-12 22:10:31,639] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [48/144] - Loss: 3.30387 - cls_loss: 0.06328 - reg_loss: 2.67110 - batch_positives: 169.00000 - lr: 0.00010
+[2025-09-12 22:10:32,101] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [49/144] - Loss: 3.32393 - cls_loss: 0.05993 - reg_loss: 2.72467 - batch_positives: 168.00000 - lr: 0.00010
+[2025-09-12 22:10:32,529] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [50/144] - Loss: 3.34215 - cls_loss: 0.06101 - reg_loss: 2.73208 - batch_positives: 166.00000 - lr: 0.00010
+[2025-09-12 22:10:32,926] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [51/144] - Loss: 3.53545 - cls_loss: 0.08457 - reg_loss: 2.68970 - batch_positives: 147.00000 - lr: 0.00010
+[2025-09-12 22:10:33,327] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [52/144] - Loss: 3.09708 - cls_loss: 0.06338 - reg_loss: 2.46325 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:33,727] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [53/144] - Loss: 3.46767 - cls_loss: 0.05936 - reg_loss: 2.87405 - batch_positives: 160.00000 - lr: 0.00010
+[2025-09-12 22:10:34,120] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [54/144] - Loss: 3.34705 - cls_loss: 0.05701 - reg_loss: 2.77691 - batch_positives: 151.00000 - lr: 0.00010
+[2025-09-12 22:10:34,516] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [55/144] - Loss: 3.58483 - cls_loss: 0.08030 - reg_loss: 2.78187 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:34,910] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [56/144] - Loss: 3.39135 - cls_loss: 0.05734 - reg_loss: 2.81791 - batch_positives: 154.00000 - lr: 0.00010
+[2025-09-12 22:10:35,309] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [57/144] - Loss: 3.26082 - cls_loss: 0.04784 - reg_loss: 2.78237 - batch_positives: 170.00000 - lr: 0.00010
+[2025-09-12 22:10:35,700] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [58/144] - Loss: 3.18389 - cls_loss: 0.07290 - reg_loss: 2.45487 - batch_positives: 174.00000 - lr: 0.00010
+[2025-09-12 22:10:36,109] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [59/144] - Loss: 2.91982 - cls_loss: 0.05054 - reg_loss: 2.41445 - batch_positives: 168.00000 - lr: 0.00010
+[2025-09-12 22:10:36,509] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [60/144] - Loss: 3.04872 - cls_loss: 0.05445 - reg_loss: 2.50418 - batch_positives: 161.00000 - lr: 0.00010
+[2025-09-12 22:10:36,915] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [61/144] - Loss: 2.80114 - cls_loss: 0.04411 - reg_loss: 2.36008 - batch_positives: 165.00000 - lr: 0.00010
+[2025-09-12 22:10:37,307] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [62/144] - Loss: 3.46850 - cls_loss: 0.06217 - reg_loss: 2.84682 - batch_positives: 170.00000 - lr: 0.00010
+[2025-09-12 22:10:37,705] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [63/144] - Loss: 3.45561 - cls_loss: 0.06051 - reg_loss: 2.85053 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:38,108] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [64/144] - Loss: 3.01633 - cls_loss: 0.05369 - reg_loss: 2.47948 - batch_positives: 165.00000 - lr: 0.00010
+[2025-09-12 22:10:38,513] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [65/144] - Loss: 3.36888 - cls_loss: 0.06362 - reg_loss: 2.73271 - batch_positives: 173.00000 - lr: 0.00010
+[2025-09-12 22:10:38,913] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [66/144] - Loss: 2.83216 - cls_loss: 0.04465 - reg_loss: 2.38567 - batch_positives: 161.00000 - lr: 0.00010
+[2025-09-12 22:10:39,307] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [67/144] - Loss: 2.91219 - cls_loss: 0.04261 - reg_loss: 2.48612 - batch_positives: 166.00000 - lr: 0.00010
+[2025-09-12 22:10:39,713] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [68/144] - Loss: 3.23250 - cls_loss: 0.06695 - reg_loss: 2.56298 - batch_positives: 158.00000 - lr: 0.00010
+[2025-09-12 22:10:40,128] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [69/144] - Loss: 2.75742 - cls_loss: 0.04343 - reg_loss: 2.32307 - batch_positives: 169.00000 - lr: 0.00010
+[2025-09-12 22:10:40,662] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [70/144] - Loss: 3.52925 - cls_loss: 0.08337 - reg_loss: 2.69556 - batch_positives: 159.00000 - lr: 0.00010
+[2025-09-12 22:10:41,184] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [71/144] - Loss: 3.88885 - cls_loss: 0.09163 - reg_loss: 2.97251 - batch_positives: 159.00000 - lr: 0.00010
+[2025-09-12 22:10:41,644] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [72/144] - Loss: 3.11322 - cls_loss: 0.05661 - reg_loss: 2.54715 - batch_positives: 164.00000 - lr: 0.00010
+[2025-09-12 22:10:42,059] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [73/144] - Loss: 3.04308 - cls_loss: 0.04871 - reg_loss: 2.55596 - batch_positives: 169.00000 - lr: 0.00010
+[2025-09-12 22:10:42,476] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [74/144] - Loss: 2.75462 - cls_loss: 0.04915 - reg_loss: 2.26307 - batch_positives: 164.00000 - lr: 0.00010
+[2025-09-12 22:10:42,872] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [75/144] - Loss: 3.20044 - cls_loss: 0.06332 - reg_loss: 2.56726 - batch_positives: 175.00000 - lr: 0.00010
+[2025-09-12 22:10:43,269] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [76/144] - Loss: 2.73438 - cls_loss: 0.04985 - reg_loss: 2.23589 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:43,673] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [77/144] - Loss: 3.49466 - cls_loss: 0.07686 - reg_loss: 2.72604 - batch_positives: 147.00000 - lr: 0.00010
+[2025-09-12 22:10:44,080] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [78/144] - Loss: 2.58442 - cls_loss: 0.04274 - reg_loss: 2.15699 - batch_positives: 159.00000 - lr: 0.00010
+[2025-09-12 22:10:44,478] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [79/144] - Loss: 2.51354 - cls_loss: 0.03775 - reg_loss: 2.13603 - batch_positives: 161.00000 - lr: 0.00010
+[2025-09-12 22:10:44,910] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [80/144] - Loss: 3.51295 - cls_loss: 0.08765 - reg_loss: 2.63649 - batch_positives: 157.00000 - lr: 0.00010
+[2025-09-12 22:10:45,312] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [81/144] - Loss: 2.80684 - cls_loss: 0.03294 - reg_loss: 2.47739 - batch_positives: 176.00000 - lr: 0.00010
+[2025-09-12 22:10:45,707] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [82/144] - Loss: 3.28596 - cls_loss: 0.05778 - reg_loss: 2.70818 - batch_positives: 157.00000 - lr: 0.00010
+[2025-09-12 22:10:46,112] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [83/144] - Loss: 3.01218 - cls_loss: 0.05235 - reg_loss: 2.48873 - batch_positives: 149.00000 - lr: 0.00010
+[2025-09-12 22:10:46,526] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [84/144] - Loss: 2.75963 - cls_loss: 0.05055 - reg_loss: 2.25412 - batch_positives: 173.00000 - lr: 0.00010
+[2025-09-12 22:10:46,943] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [85/144] - Loss: 3.07996 - cls_loss: 0.06203 - reg_loss: 2.45966 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:47,365] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [86/144] - Loss: 2.68577 - cls_loss: 0.03900 - reg_loss: 2.29575 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:47,770] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [87/144] - Loss: 3.09582 - cls_loss: 0.06289 - reg_loss: 2.46691 - batch_positives: 157.00000 - lr: 0.00010
+[2025-09-12 22:10:48,173] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [88/144] - Loss: 2.68786 - cls_loss: 0.03936 - reg_loss: 2.29423 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:48,572] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [89/144] - Loss: 2.63672 - cls_loss: 0.03530 - reg_loss: 2.28370 - batch_positives: 174.00000 - lr: 0.00010
+[2025-09-12 22:10:48,968] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [90/144] - Loss: 2.79559 - cls_loss: 0.04779 - reg_loss: 2.31771 - batch_positives: 160.00000 - lr: 0.00010
+[2025-09-12 22:10:49,370] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [91/144] - Loss: 2.88747 - cls_loss: 0.05489 - reg_loss: 2.33862 - batch_positives: 165.00000 - lr: 0.00010
+[2025-09-12 22:10:49,769] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [92/144] - Loss: 2.97176 - cls_loss: 0.04805 - reg_loss: 2.49126 - batch_positives: 154.00000 - lr: 0.00010
+[2025-09-12 22:10:50,170] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [93/144] - Loss: 2.43023 - cls_loss: 0.03922 - reg_loss: 2.03801 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:50,572] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [94/144] - Loss: 3.15919 - cls_loss: 0.07153 - reg_loss: 2.44392 - batch_positives: 175.00000 - lr: 0.00010
+[2025-09-12 22:10:50,985] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [95/144] - Loss: 2.97941 - cls_loss: 0.04634 - reg_loss: 2.51601 - batch_positives: 172.00000 - lr: 0.00010
+[2025-09-12 22:10:51,381] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [96/144] - Loss: 2.46831 - cls_loss: 0.03860 - reg_loss: 2.08230 - batch_positives: 157.00000 - lr: 0.00010
+[2025-09-12 22:10:51,777] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [97/144] - Loss: 2.45371 - cls_loss: 0.03037 - reg_loss: 2.15003 - batch_positives: 157.00000 - lr: 0.00010
+[2025-09-12 22:10:52,173] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [98/144] - Loss: 3.36655 - cls_loss: 0.05557 - reg_loss: 2.81085 - batch_positives: 153.00000 - lr: 0.00010
+[2025-09-12 22:10:52,573] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [99/144] - Loss: 2.85875 - cls_loss: 0.05286 - reg_loss: 2.33014 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:52,966] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [100/144] - Loss: 3.08640 - cls_loss: 0.05925 - reg_loss: 2.49386 - batch_positives: 158.00000 - lr: 0.00010
+[2025-09-12 22:10:53,367] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [101/144] - Loss: 2.50471 - cls_loss: 0.03138 - reg_loss: 2.19088 - batch_positives: 166.00000 - lr: 0.00010
+[2025-09-12 22:10:53,768] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [102/144] - Loss: 2.78674 - cls_loss: 0.04359 - reg_loss: 2.35085 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:54,159] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [103/144] - Loss: 2.98012 - cls_loss: 0.04898 - reg_loss: 2.49029 - batch_positives: 159.00000 - lr: 0.00010
+[2025-09-12 22:10:54,554] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [104/144] - Loss: 2.19582 - cls_loss: 0.02871 - reg_loss: 1.90870 - batch_positives: 164.00000 - lr: 0.00010
+[2025-09-12 22:10:54,948] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [105/144] - Loss: 3.12915 - cls_loss: 0.05421 - reg_loss: 2.58702 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:10:55,351] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [106/144] - Loss: 2.72332 - cls_loss: 0.03798 - reg_loss: 2.34349 - batch_positives: 164.00000 - lr: 0.00010
+[2025-09-12 22:10:55,753] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [107/144] - Loss: 2.95766 - cls_loss: 0.04223 - reg_loss: 2.53540 - batch_positives: 170.00000 - lr: 0.00010
+[2025-09-12 22:10:56,146] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [108/144] - Loss: 2.57425 - cls_loss: 0.03928 - reg_loss: 2.18142 - batch_positives: 172.00000 - lr: 0.00010
+[2025-09-12 22:10:56,544] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [109/144] - Loss: 2.74816 - cls_loss: 0.04303 - reg_loss: 2.31784 - batch_positives: 176.00000 - lr: 0.00010
+[2025-09-12 22:10:56,947] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [110/144] - Loss: 3.02759 - cls_loss: 0.05168 - reg_loss: 2.51081 - batch_positives: 173.00000 - lr: 0.00010
+[2025-09-12 22:10:57,348] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [111/144] - Loss: 2.66969 - cls_loss: 0.03827 - reg_loss: 2.28703 - batch_positives: 179.00000 - lr: 0.00010
+[2025-09-12 22:10:57,763] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [112/144] - Loss: 2.74871 - cls_loss: 0.03868 - reg_loss: 2.36188 - batch_positives: 172.00000 - lr: 0.00010
+[2025-09-12 22:10:58,152] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [113/144] - Loss: 3.29775 - cls_loss: 0.06360 - reg_loss: 2.66180 - batch_positives: 183.00000 - lr: 0.00010
+[2025-09-12 22:10:58,563] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [114/144] - Loss: 2.30368 - cls_loss: 0.03062 - reg_loss: 1.99751 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:10:58,962] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [115/144] - Loss: 2.64886 - cls_loss: 0.04584 - reg_loss: 2.19042 - batch_positives: 160.00000 - lr: 0.00010
+[2025-09-12 22:10:59,369] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [116/144] - Loss: 2.30717 - cls_loss: 0.02702 - reg_loss: 2.03693 - batch_positives: 180.00000 - lr: 0.00010
+[2025-09-12 22:10:59,763] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [117/144] - Loss: 2.78076 - cls_loss: 0.04792 - reg_loss: 2.30157 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:11:00,165] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [118/144] - Loss: 2.71294 - cls_loss: 0.04486 - reg_loss: 2.26435 - batch_positives: 173.00000 - lr: 0.00010
+[2025-09-12 22:11:00,569] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [119/144] - Loss: 2.38822 - cls_loss: 0.04446 - reg_loss: 1.94357 - batch_positives: 162.00000 - lr: 0.00010
+[2025-09-12 22:11:00,967] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [120/144] - Loss: 2.64081 - cls_loss: 0.05092 - reg_loss: 2.13161 - batch_positives: 164.00000 - lr: 0.00010
+[2025-09-12 22:11:01,372] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [121/144] - Loss: 2.64118 - cls_loss: 0.05323 - reg_loss: 2.10891 - batch_positives: 169.00000 - lr: 0.00010
+[2025-09-12 22:11:01,769] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [122/144] - Loss: 3.38776 - cls_loss: 0.07955 - reg_loss: 2.59224 - batch_positives: 169.00000 - lr: 0.00010
+[2025-09-12 22:11:02,172] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [123/144] - Loss: 3.06637 - cls_loss: 0.05618 - reg_loss: 2.50454 - batch_positives: 181.00000 - lr: 0.00010
+[2025-09-12 22:11:02,567] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [124/144] - Loss: 2.82313 - cls_loss: 0.05138 - reg_loss: 2.30933 - batch_positives: 173.00000 - lr: 0.00010
+[2025-09-12 22:11:02,974] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [125/144] - Loss: 2.73588 - cls_loss: 0.04825 - reg_loss: 2.25341 - batch_positives: 174.00000 - lr: 0.00010
+[2025-09-12 22:11:03,382] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [126/144] - Loss: 2.22449 - cls_loss: 0.03256 - reg_loss: 1.89885 - batch_positives: 165.00000 - lr: 0.00010
+[2025-09-12 22:11:03,778] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [127/144] - Loss: 3.24377 - cls_loss: 0.07262 - reg_loss: 2.51761 - batch_positives: 160.00000 - lr: 0.00010
+[2025-09-12 22:11:04,169] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [128/144] - Loss: 2.42743 - cls_loss: 0.03423 - reg_loss: 2.08511 - batch_positives: 169.00000 - lr: 0.00010
+[2025-09-12 22:11:04,580] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [129/144] - Loss: 2.39020 - cls_loss: 0.03981 - reg_loss: 1.99211 - batch_positives: 166.00000 - lr: 0.00010
+[2025-09-12 22:11:04,977] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [130/144] - Loss: 2.39269 - cls_loss: 0.04278 - reg_loss: 1.96487 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:11:05,383] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [131/144] - Loss: 2.70788 - cls_loss: 0.04642 - reg_loss: 2.24367 - batch_positives: 182.00000 - lr: 0.00010
+[2025-09-12 22:11:05,775] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [132/144] - Loss: 2.40238 - cls_loss: 0.03627 - reg_loss: 2.03969 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:11:06,187] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [133/144] - Loss: 2.68023 - cls_loss: 0.03270 - reg_loss: 2.35321 - batch_positives: 161.00000 - lr: 0.00010
+[2025-09-12 22:11:06,593] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [134/144] - Loss: 2.33599 - cls_loss: 0.03820 - reg_loss: 1.95399 - batch_positives: 164.00000 - lr: 0.00010
+[2025-09-12 22:11:06,991] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [135/144] - Loss: 2.39216 - cls_loss: 0.03709 - reg_loss: 2.02122 - batch_positives: 171.00000 - lr: 0.00010
+[2025-09-12 22:11:07,402] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [136/144] - Loss: 3.00546 - cls_loss: 0.04987 - reg_loss: 2.50679 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:11:07,798] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [137/144] - Loss: 2.37489 - cls_loss: 0.02852 - reg_loss: 2.08973 - batch_positives: 161.00000 - lr: 0.00010
+[2025-09-12 22:11:08,202] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [138/144] - Loss: 2.79642 - cls_loss: 0.04930 - reg_loss: 2.30340 - batch_positives: 152.00000 - lr: 0.00010
+[2025-09-12 22:11:08,602] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [139/144] - Loss: 2.59952 - cls_loss: 0.04440 - reg_loss: 2.15555 - batch_positives: 153.00000 - lr: 0.00010
+[2025-09-12 22:11:09,004] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [140/144] - Loss: 2.11762 - cls_loss: 0.02745 - reg_loss: 1.84309 - batch_positives: 174.00000 - lr: 0.00010
+[2025-09-12 22:11:09,404] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [141/144] - Loss: 2.84606 - cls_loss: 0.04847 - reg_loss: 2.36134 - batch_positives: 162.00000 - lr: 0.00010
+[2025-09-12 22:11:09,794] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [142/144] - Loss: 2.36543 - cls_loss: 0.04150 - reg_loss: 1.95042 - batch_positives: 167.00000 - lr: 0.00010
+[2025-09-12 22:11:10,159] [laneatt.utils.logger] [DEBUG] Epoch [1/100] - Iter [143/144] - Loss: 2.52912 - cls_loss: 0.05481 - reg_loss: 1.98099 - batch_positives: 134.00000 - lr: 0.00010
+[2025-09-12 22:11:10,160] [laneatt.utils.logger] [DEBUG] Epoch [1/100] finished.
+[2025-09-12 22:11:10,160] [laneatt.utils.logger] [INFO] Training Epoch finished. Loss: 3.70928 - Cls Loss: 0.09475 - Reg Loss: 2.76179
+[2025-09-12 22:11:10,160] [laneatt.utils.logger] [INFO] Starting evaluation...
+[2025-09-12 22:11:10,161] [laneatt.utils.dataset] [INFO] Loading TuSimple annotations...
+[2025-09-12 22:11:10,170] [laneatt.utils.dataset] [INFO] 300 annotations loaded, with a maximum of 2 lanes in an image.
+[2025-09-12 22:11:10,171] [laneatt.utils.dataset] [INFO] Transforming annotations to the model's target format...
+[2025-09-12 22:11:10,264] [laneatt.utils.dataset] [INFO] Annotations transformed.
+[2025-09-12 22:11:10,593] [laneatt.utils.logger] [DEBUG] Iter [0/38] - Loss: 4.77032 - cls_loss: 0.17754 - reg_loss: 2.99493 - batch_positives: 159.00000
+[2025-09-12 22:11:10,972] [laneatt.utils.logger] [DEBUG] Iter [1/38] - Loss: 4.38220 - cls_loss: 0.12694 - reg_loss: 3.11284 - batch_positives: 155.00000
+[2025-09-12 22:11:11,355] [laneatt.utils.logger] [DEBUG] Iter [2/38] - Loss: 4.08430 - cls_loss: 0.12883 - reg_loss: 2.79603 - batch_positives: 158.00000
+[2025-09-12 22:11:11,729] [laneatt.utils.logger] [DEBUG] Iter [3/38] - Loss: 4.18511 - cls_loss: 0.11442 - reg_loss: 3.04095 - batch_positives: 164.00000
+[2025-09-12 22:11:12,103] [laneatt.utils.logger] [DEBUG] Iter [4/38] - Loss: 4.31309 - cls_loss: 0.14554 - reg_loss: 2.85766 - batch_positives: 159.00000
+[2025-09-12 22:11:12,421] [laneatt.utils.logger] [DEBUG] Iter [5/38] - Loss: 4.43890 - cls_loss: 0.14794 - reg_loss: 2.95947 - batch_positives: 156.00000
