@@ -26,3 +26,4 @@ cvat2tuSimple/val*
 cvat2tuSimple/train
 **/*.log
 **/*.pkl
+dataset*/**
