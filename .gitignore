@@ -14,6 +14,8 @@ __pycache__/
 *.egg-info/
 .idea/**
 **/*.png
+**/*.jpg
+**/*.jpeg
 **/**/*.avi
 *.avi
 **/photos/**
@@ -22,3 +24,5 @@ __pycache__/
 cvat2tuSimple/test
 cvat2tuSimple/val*
 cvat2tuSimple/train
+**/*.log
+**/*.pkl
