@@ -14,7 +14,7 @@ if __name__ == '__main__':
     laneatt.load(MODEL_PATH) # Load the model weights
     laneatt.eval() # Set the model to evaluation mode
 
-    cap = cv2.VideoCapture("/home/joel/Documents/research/RealTime-LaneATT/realsense/videos/video3.avi") # Open the camera
+    cap = cv2.VideoCapture("/home/joel/Documents/research/RealTime-LaneATT/realsense/videos/testeo_final_5.avi") # Open the camera
     while True:
         ret, frame = cap.read() # Read a frame from the camera
 

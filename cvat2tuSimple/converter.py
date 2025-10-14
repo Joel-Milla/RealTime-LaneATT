@@ -118,8 +118,9 @@ def parse_images_from_xml(file_path):
 # Example usage
 if __name__ == "__main__":
     # Parse the XML file
-    MAIN_FOLDER = "val2"
-    FOLDER_READ_WRITE = "images"
+    MAIN_FOLDER = "train3"
+    FOLDER_READ = "images"
+    NEW_FOLDER_NAME = "clips"
     H_SAMPLES = list(range(0, 720, 10))
     images = parse_images_from_xml(f'{MAIN_FOLDER}/annotations.xml')
 
@@ -131,7 +132,7 @@ if __name__ == "__main__":
         print(f"Image: {image['name']} ({image['width']}x{image['height']})")
         print(f"ID: {image['id']}")
 
-        img = cv2.imread(f"{MAIN_FOLDER}/{FOLDER_READ_WRITE}/{image['name']}")
+        img = cv2.imread(f"{MAIN_FOLDER}/{FOLDER_READ}/{image['name']}")
 
         for i, polyline in enumerate(image['polylines']):
             polyline_obj = polyline['object']
@@ -154,7 +155,7 @@ if __name__ == "__main__":
         json_output = {
             "lanes": lanes,
             "h_samples": H_SAMPLES,
-            "raw_file": f'{FOLDER_READ_WRITE}/{image['name']}'
+            "raw_file": f'{NEW_FOLDER_NAME}/{image['name']}'
         }
 
         all_labels.append(json_output)
