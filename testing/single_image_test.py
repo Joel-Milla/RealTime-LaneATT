@@ -10,8 +10,8 @@ CONFIG_TO_LOAD = 'laneatt.yaml' # Configuration file name to load
 IMG_TO_LOAD = 'test_img.png' # Image name to load
 MODEL_PATH = os.path.join(os.path.dirname(__file__),'..', 'checkpoints', MODEL_TO_LOAD) # Model path (In this case, the model is in the same directory as the script)
 CONFIG_PATH = os.path.join(os.path.dirname(__file__),'..', 'configs', CONFIG_TO_LOAD) # Configuration file path (In this case, the configuration file is in the same directory as the script)
-IMG_PATH = os.path.join(os.path.dirname(__file__), IMG_TO_LOAD) # Image path (In this case, the image is in the same directory as the script)
-
+# IMG_PATH = os.path.join(os.path.dirname(__file__), IMG_TO_LOAD) # Image path (In this case, the image is in the same directory as the script)
+IMG_PATH = "/home/joel/Documents/research/RealTime-LaneATT/dataset_generator/test/images/frame_0730.png"
 __img_w = 640
 __img_h = 360
 __anchor_y_discretization = 72
