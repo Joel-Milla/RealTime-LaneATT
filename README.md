@@ -20,6 +20,12 @@ A Real Time approach to Lane Detection for greenhouse environments based on the 
 
 `Realtime-LaneATT` is a novel line detection model designed specifically for identifying greenhouse line delimitations. Building on previous work in the field, we have developed a real-time lane attention mechanism that enables accurate and efficient detection of line delimitations in greenhouses images and videos.
 
+The model was tested for autonomous navigation in greenhouse environments using the Jackal platform from Clearpath Robotics. This robotic platform combines multiple hardware components to enable real-time perception and navigation:
+
+![jackal platform](assets/jackal.png)
+
+The platform features: (a) Jackal robot with Jetson Orin Nano as an edge device for onboard inference, (b) Gimbal Feiyu for camera stabilization, and (c) Intel RealSense D435 for capturing images used by the lane detection model.
+
 ## **Key Features**
 
 - Real-Time Processing
@@ -52,6 +58,14 @@ The model was tested on a NVIDIA GeForce RTX 3070 ti laptop GPU, with an average
 | F1 Score       | 0.92 (92%) |
 | Accuracy       | 0.91 (91%) |
 | Inference Time | 11ms       |
+
+## **Navigation Evaluation**
+
+To evaluate navigation performance, an ArUco marker was positioned at the centerline of greenhouse rows at a 6-meter distance, serving as a reference point for measuring the robot's lateral deviation during autonomous navigation. The control system utilized the detected lane boundaries to compute linear and angular velocities, enabling the robot to navigate through the greenhouse rows while maintaining centerline alignment.
+
+Navigation accuracy was quantified using the average yaw angle error metric, which measured the angular deviation between the predicted navigation path and the ground-truth centerline, achieving a mean error of 1.67°.
+
+![world_frame](assets/world_frames.png)
 
 ## **Metrics**
 
