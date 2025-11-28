@@ -9,6 +9,7 @@ A Real Time approach to Lane Detection for greenhouse environments based on the 
 **Table of Contents**
 
 - [Introduction](#introduction)
+- [Related Repositories](#related-repositories)
 - [Key Features](#key-features)
 - [Model Architecture](#model-architecture)
 - [Training and Evaluation](#training-and-evaluation)
@@ -25,6 +26,15 @@ The model was tested for autonomous navigation in greenhouse environments using 
 ![jackal platform](assets/jackal.png)
 
 The platform features: (a) Jackal robot with Jetson Orin Nano as an edge device for onboard inference, (b) Gimbal Feiyu for camera stabilization, and (c) Intel RealSense D435 for capturing images used by the lane detection model.
+
+## **Related Repositories**
+
+This project requires additional repositories for complete setup and deployment:
+
+1. **[LaneAtt_rosws](https://github.com/Joel-Milla/LaneAtt_rosws)** - Contains the ROS control code for autonomous navigation inside the Jackal robot
+2. **[realTime_laneATT_documentation](https://github.com/Joel-Milla/realTime_laneATT_documentation)** - Provides troubleshooting guides and detailed documentation for setting up the hardware devices
+
+These repositories are vital for running the complete autonomous navigation system.
 
 ## **Key Features**
 
