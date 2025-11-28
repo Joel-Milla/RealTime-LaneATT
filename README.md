@@ -4,34 +4,31 @@
 
 A Real Time approach to Lane Detection for greenhouse environments based on the paper "Keep your attention on the lane" by Lucas Tabelini, Rodrigo Berriel, Thiago M. Paixao, Claudine Badue, Alberto F. De Souza, Thiago Oliveira-Santos.
 
----------------
+---
 
 **Table of Contents**
 
-* [Introduction](#introduction)
-* [Key Features](#key-features)
-* [Model Architecture](#model-architecture)
-* [Training and Evaluation](#training-and-evaluation)
-* [Metrics](#metrics)
-* [Code and Usage](#code-and-usage)
-* [Citation](#citation)
+- [Introduction](#introduction)
+- [Key Features](#key-features)
+- [Model Architecture](#model-architecture)
+- [Training and Evaluation](#training-and-evaluation)
+- [Metrics](#metrics)
+- [Code and Usage](#code-and-usage)
+- [Citation](#citation)
 
-**Introduction**
----------------
+## **Introduction**
 
 `Realtime-LaneATT` is a novel line detection model designed specifically for identifying greenhouse line delimitations. Building on previous work in the field, we have developed a real-time lane attention mechanism that enables accurate and efficient detection of line delimitations in greenhouses images and videos.
 
-**Key Features**
-----------------
+## **Key Features**
 
-* Real-Time Processing
-* New Mechanism for anchor proposals
-* Improved Accuracy
-* Improved Efficiency
-* Reduced training time
+- Real-Time Processing
+- New Mechanism for anchor proposals
+- Improved Accuracy
+- Improved Efficiency
+- Reduced training time
 
-**Model Architecture**
----------------------
+## **Model Architecture**
 
 The architecture of `Realtime-LaneATT` builds upon the strengths of its predecessor, `LaneATT`, a state-of-the-art model in its own right. We have introduced a novel codebase that enables real-time inference on any RGB camera, leveraging the latest software dependencies such as `CUDA 12.6`, `NumPy 2.1.2`, and `PyTorch 2.5.4`.
 
@@ -43,30 +40,26 @@ This design choice has several key benefits:
 - **Reduced training time:** The anchor proposal mechanism allows us to converge faster during training, while still achieving high accuracy.
 - **Increased robustness:** Our model is less susceptible to variations in input data, thanks to its ability to adapt and learn from projected anchors.
 
-**Training and Evaluation**
----------------------------
+## **Training and Evaluation**
 
-We have trained `Realtime-LaneATT` on a custom dataset of annotated images, with a total of 2500 samples during 100 epochs. Our model has achieved state-of-the-art results in terms of accuracy and speed, outperforming other popular greenhouse line delimitation methods.
+We have trained `Realtime-LaneATT` on a custom dataset of annotated images. The training set consisted of 3,626 images, the validation set comprised 358 images, and the test set contained 2,782 images, all trained during 100 epochs. Our model has achieved state-of-the-art results in terms of accuracy and speed, outperforming other popular greenhouse line delimitation methods.
 The model was tested on a NVIDIA GeForce RTX 3070 ti laptop GPU, with an average inference time of 11ms per image.
 
-| **Metric** | **Value** |
-| --- | --- |
-| Precision | 0.94 (94%) |
-| Recall    | 0.89 (89%) |
-| F1 Score  | 0.92 (92%) |
-| Accuracy  | 0.91 (91%) |
-| Inference Time | 11ms  |
+| **Metric**     | **Value**  |
+| -------------- | ---------- |
+| Precision      | 0.94 (94%) |
+| Recall         | 0.89 (89%) |
+| F1 Score       | 0.92 (92%) |
+| Accuracy       | 0.91 (91%) |
+| Inference Time | 11ms       |
 
-
-**Metrics**
----
+## **Metrics**
 
 ![model_evaluation](assets/metrics.png)
 
-**Code and Usage**
------------------
+## **Code and Usage**
 
-* This repository contains the source code for the `Realtime-LaneATT` model, but the installation method is through the `pip` package manager. To install the package, run the following command:
+- This repository contains the source code for the `Realtime-LaneATT` model, but the installation method is through the `pip` package manager. To install the package, run the following command:
 
 ## Installation
 
@@ -119,7 +112,7 @@ But before running, you need to create a configuration file, `laneatt.yaml`, wit
 
 ```yaml
 # Backbone for the model
-backbone: resnet18 
+backbone: resnet18
 
 # Feature Volume Channels
 feature_volume_channels: 64
@@ -143,7 +136,24 @@ dataset_image_size:
 anchor_angles:
   left: [72., 60., 49., 39., 30., 22.]
   right: [108., 120., 131., 141., 150., 158.]
-  bottom: [165., 150., 141., 131., 120., 108., 100., 90., 80., 72., 60., 49., 39., 30., 15.]
+  bottom:
+    [
+      165.,
+      150.,
+      141.,
+      131.,
+      120.,
+      108.,
+      100.,
+      90.,
+      80.,
+      72.,
+      60.,
+      49.,
+      39.,
+      30.,
+      15.,
+    ]
 
 # Optimizer for training the model ### You might not want to change this
 optimizer:
@@ -194,7 +204,8 @@ dataset:
 You will also need a model checkpoint file. You can use our pretrained model, `laneatt_100.pt`, which can be downloaded from [here](https://github.com/PaoloReyes/RealTime-LaneATT/tree/main/checkpoints).
 
 Alternatively, you can initialize Git LFS (Large File Storage) and pull the model.
-``` bash
+
+```bash
 # Initialize git lfs
 git lfs install
 
@@ -243,7 +254,7 @@ dataset/
     └── labels.json
 ```
 
-You can download our dataset from [here](https://www.kaggle.com/datasets/paoloinspires/greenhouse-lanes).
+You can download our dataset from [here](https://www.kaggle.com/datasets/joelmilla/year-round-greenhouse-lanes/data).
 
 If you want a more general dataset we have modified the `TuSimple` dataset to work with our model structure, you can download it from [here](https://www.kaggle.com/datasets/paoloinspires/simplified-tusimple).
 
@@ -277,9 +288,8 @@ if __name__ == '__main__':
     cv2.destroyAllWindows() # Close the window
 ```
 
-**Citation**
-------------
+## **Citation**
 
 If you find this work useful, please consider citing our paper:
 
-*Soon...*
+_Soon..._
