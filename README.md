@@ -83,13 +83,61 @@ Navigation accuracy was quantified using the average yaw angle error metric, whi
 
 ## **Code and Usage**
 
-- This repository contains the source code for the `Realtime-LaneATT` model, but the installation method is through the `pip` package manager. To install the package, run the following command:
+### 1. Install Anaconda
 
-## Installation
+Download and install Anaconda from the [official website](https://www.anaconda.com/download). Anaconda provides an isolated environment for managing Python packages and dependencies.
+
+After installation, create and activate a new conda environment:
+
+```bash
+conda create -n your_env_name python=3.10
+conda activate your_env_name
+```
+
+### 2. Install pip in Conda Environment
+
+Install pip within the conda environment so that all installed programs are saved inside this isolated environment:
+
+```bash
+conda install pip
+```
+
+### 3. Install Required NumPy Version
+
+Install the specific version of NumPy required by your models:
+
+```bash
+pip install numpy==2.1.2
+```
+
+### 4. Install LaneATT
+
+Install the LaneATT package, which will automatically install PyTorch and CUDA dependencies:
 
 ```bash
 pip install laneatt
 ```
+
+### 5. Test the Installation
+
+To verify that the installation was successful, run the test script:
+
+```bash
+python testing/single_image_test.py
+```
+
+If an image window appears showing the detected lanes, the installation worked correctly.
+
+## Full Installation
+
+For a complete autonomous navigation setup with the Jackal platform, you have two options:
+
+1. **Install directly on Jetson**: Install LaneATT directly on the Jetson Nano/Orin powering the Jackal robot
+2. **Install on your computer**: Download and install LaneATT on your personal computer, then connect it to the Jetson Nano powering the Jackal for remote inference
+
+For instructions on installing the autonomous navigation control code on the Jackal robot, refer to the detailed documentation in the [LaneAtt_rosws repository](https://github.com/Joel-Milla/LaneAtt_rosws).
+
+For comprehensive troubleshooting guides and detailed instructions on setting up and configuring the hardware devices (camera, gimbal, RealSense, etc.) to run the model, please refer to the [realTime_laneATT_documentation repository](https://github.com/Joel-Milla/realTime_laneATT_documentation).
 
 ## Video Inference
 
