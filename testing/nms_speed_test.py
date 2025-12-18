@@ -16,7 +16,7 @@ if __name__ == '__main__':
     laneatt.eval() # Set the model to evaluation mode
     different_nms = [(laneatt.nms_v1, "nms_v1"), (laneatt.nms_v2, "nms_v2"), (laneatt.nms_v3, "nms_v3")]
 
-    cap = cv2.VideoCapture("/home/joel/Documents/research/RealTime-LaneATT/realsense/videos/video2.avi") # Open the camera
+    cap = cv2.VideoCapture("/home/joel/Documents/research/RealTime-LaneATT/realsense/videos/v1_9_12_25.avi") # Open the camera
     for nms_func, name in different_nms:
         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
         average = 0
@@ -32,11 +32,11 @@ if __name__ == '__main__':
                 print(f'Inference time of {name}: ', inference_time) # Print the inference time
                 average += inference_time
                 count += 1
-                # laneatt.plot(output, frame) # Plot the lanes onto the frame and show it
+                laneatt.plot(output, frame) # Plot the lanes onto the frame and show it
 
                 # Wait for 'q' key to quit
-                # if cv2.waitKey(1) == ord('q'):
-                #     break
+                if cv2.waitKey(1) == ord('q'):
+                    break
             else:
                 # If the frame cannot be read, break the loop
                 print("Cannot receive frame")

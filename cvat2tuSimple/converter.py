@@ -51,8 +51,21 @@ class Polyline:
 
         # Sort points by y-coordinate (top to bottom)
         sorted_points = sorted(self.points_array, key=lambda p: p.y)
-        y_coords = [p.y for p in sorted_points]
-        x_coords = [p.x for p in sorted_points]
+
+        # Remove duplicate y-coordinates (keep first occurrence)
+        seen_y = set()
+        unique_points = []
+        for p in sorted_points:
+            if p.y not in seen_y:
+                seen_y.add(p.y)
+                unique_points.append(p)
+
+        # Need at least 2 unique points for interpolation
+        if len(unique_points) < 2:
+            return lambda y: unique_points[0].x if unique_points else 0
+
+        y_coords = [p.y for p in unique_points]
+        x_coords = [p.x for p in unique_points]
 
 
         # Use light smoothing to handle annotation noise
@@ -118,7 +131,7 @@ def parse_images_from_xml(file_path):
 # Example usage
 if __name__ == "__main__":
     # Parse the XML file
-    MAIN_FOLDER = "train3"
+    MAIN_FOLDER = "inv_greenhouse"
     FOLDER_READ = "images"
     NEW_FOLDER_NAME = "clips"
     H_SAMPLES = list(range(0, 720, 10))

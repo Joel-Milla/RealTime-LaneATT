@@ -57,7 +57,7 @@ if __name__ == '__main__':
     count = 0
 
     # Open the camera
-    cap = cv2.VideoCapture("/home/joel/Documents/research/RealTime-LaneATT/realsense/videos/20_oct_video.avi")
+    cap = cv2.VideoCapture("/home/joel/Documents/research/RealTime-LaneATT/realsense/videos/v1_9_12_25.avi")
     fps = cap.get(cv2.CAP_PROP_FPS)
     print(f'Frame rate of video: {fps}')
     frame_delay = int(1000 / fps)  # Convert to milliseconds
